@@ -393,6 +393,8 @@
             $('#confirmationModal .modal-dialog').removeClass(modalLarge).addClass(modalSmall);
             $('#confirmationModal').modal('show');
 
+            ///////////////////////////////////// onhold process /////////////////////////////////////
+
             $('#btnHoldProcess').off().on('click', function() {
                 $('#confirmationModal').modal('hide'); 
                 setTimeout(function() {
@@ -470,6 +472,8 @@
 
                 }, 500);
             });
+
+            ///////////////////////////////////// onhold process /////////////////////////////////////
 
             $('#btnCancelProcess').off().on('click', function() {
                 $('#confirmationModal').modal('hide'); 

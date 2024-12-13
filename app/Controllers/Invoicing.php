@@ -1888,6 +1888,7 @@ class Invoicing extends BaseController
         echo json_encode($data);
     }
 
+    ////////////////////////////// onhold process //////////////////////////////
 
     public function onhold_email_v2()
     {
@@ -1977,6 +1978,8 @@ class Invoicing extends BaseController
         }
         echo json_encode($data);
     }
+
+    ////////////////////////////// onhold process //////////////////////////////
 
     public function del_onhold()
     {

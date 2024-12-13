@@ -475,6 +475,8 @@
 
             ///////////////////////////////////// onhold process /////////////////////////////////////
 
+            ///////////////////////////////////// cancel process /////////////////////////////////////
+
             $('#btnCancelProcess').off().on('click', function() {
                 $('#confirmationModal').modal('hide'); 
                 setTimeout(function() {
@@ -555,6 +557,8 @@
 
                 }, 500); 
             });
+
+            ///////////////////////////////////// cancel process /////////////////////////////////////
         });
 
         function displayError(error) {

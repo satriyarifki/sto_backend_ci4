@@ -899,6 +899,7 @@ class Invoicing extends BaseController
         $pdf->Output('invoice.pdf', 'I');
     }
     
+    ///////////////////////////////////// Cancel Process /////////////////////////////////////
     
     public function cancel_process()
     {
@@ -1034,6 +1035,8 @@ class Invoicing extends BaseController
 
         echo json_encode($data);
     }
+
+    ///////////////////////////////////// Cancel Process /////////////////////////////////////
 
     public function unity()
     {

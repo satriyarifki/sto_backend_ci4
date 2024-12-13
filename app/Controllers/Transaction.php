@@ -21,6 +21,7 @@ class Transaction extends BaseController
         $this->ionAuth = $model;
     }
 
+    //////////////////////////////////////////// Process PUD Scan Achievement ////////////////////////////////////////////
 
     public function scan_pud()
     {
@@ -79,6 +80,7 @@ class Transaction extends BaseController
         }
     }
 
+    //////////////////////////////////////////// Process PUD Scan Achievement ////////////////////////////////////////////
 
     public function scan_finance()
     {

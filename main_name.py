@@ -4,6 +4,8 @@ from pdf2image import convert_from_path
 import json
 import sys
 
+# Read PFIC name faktur using OCR Python
+
 def extract_nama_faktur_from_pdf(pdf_path, name_fakturs):
     images = convert_from_path(pdf_path, use_pdftocairo=True)
     last_page_image = images[-1]

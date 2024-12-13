@@ -9,6 +9,8 @@ class M_miro extends Model
 
     protected $table = 'dropbox';
 
+    ////////////////////////////////////////// Filter miro data Invoice based on Vendor Name //////////////////////////////////////////
+
     public function updateMiro($no_invoice, $invoicing_id, $status, $nik)
     {
         $builder = $this->db->table($this->table);
@@ -29,6 +31,8 @@ class M_miro extends Model
         $builder->where('invoicing_id', $invoicing_id);
         return $builder->update();
     }
+
+    ////////////////////////////////////////// Filter miro data Invoice based on Vendor Name //////////////////////////////////////////
 
     public function updateRegisterIn($no_invoice, $status, $nik)
     {

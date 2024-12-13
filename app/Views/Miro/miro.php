@@ -247,6 +247,8 @@
             ]
         });
 
+        ////////////////////////////////////////// Filter miro data Invoice based on Vendor Name //////////////////////////////////////////
+
         $('#loadDataBtn').on('click', function() {
             var vendor = document.getElementById('vendorSelect').value;
 
@@ -275,6 +277,8 @@
                 toastr.info('Masukan Nomor Invoice atau Zinver serta Vendor nya')
             }
         });
+
+        ////////////////////////////////////////// Filter miro data Invoice based on Vendor Name //////////////////////////////////////////
 
         $('#example tbody').on('click', 'td.details-control', function () {
             var tr = $(this).closest('tr');

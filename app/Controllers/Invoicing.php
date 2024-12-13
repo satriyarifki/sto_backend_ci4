@@ -2306,6 +2306,8 @@ class Invoicing extends BaseController
         return $this->_render_page('Miro/miro', $data);
     }
 
+    ////////////////////////////////////////// Filter miro data Invoice based on Vendor Name //////////////////////////////////////////
+
     public function miro_approve()
     {
         $no_invoice = $this->request->getPost('no_invoice');
@@ -2316,6 +2318,8 @@ class Invoicing extends BaseController
         $model = new M_miro();
         $model->updateMiro($no_invoice, $invoicing_id, $status_miro, $nik);
     }
+
+    ////////////////////////////////////////// Filter miro data Invoice based on Vendor Name //////////////////////////////////////////
     
     public function miro_json()
     {

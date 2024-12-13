@@ -82,6 +82,8 @@ class Transaction extends BaseController
 
     //////////////////////////////////////////// Process PUD Scan Achievement ////////////////////////////////////////////
 
+    //////////////////////////////////////////// Process Finance Scan Achievement ////////////////////////////////////////////
+
     public function scan_finance()
     {
         $this->check_permission('Module.View.ScanFinance');
@@ -137,6 +139,8 @@ class Transaction extends BaseController
             ]);
         }
     }
+
+    //////////////////////////////////////////// Process Finance Scan Achievement ////////////////////////////////////////////
 
     public function pending_dropbox_index()
     {

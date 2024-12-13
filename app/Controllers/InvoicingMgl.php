@@ -81,6 +81,9 @@ class InvoicingMgl extends BaseController
         return $this->response->download($qrCodePath, null)->setFileName('qrcode.png');
     }
 
+
+////////////// Magelang Invoice verification
+
     public function makeinvoice()
     {
         $data['current_user'] = $this->ionAuth->user()->row();
@@ -210,6 +213,8 @@ class InvoicingMgl extends BaseController
 
         echo json_encode($data);
     }
+
+////////////// Magelang Invoice verification
 
     public function vendor_verify_json()
     {

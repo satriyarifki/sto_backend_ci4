@@ -5,6 +5,9 @@ import io
 import json
 import sys
 
+
+# Read QR from faktur and invoice
+
 def render_pages_as_images(pdf_path, zoom=2.0):
     pdf_document = fitz.open(pdf_path)
     images = []

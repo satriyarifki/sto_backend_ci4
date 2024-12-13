@@ -1,0 +1,836 @@
+<?= $this->extend('template/default') ?>
+
+<?= $this->section('content') ?>
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div id="errorContainer"></div>
+            <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmationModalLabel">Konfirmasi</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                        <button type="button" class="btn btn-primary" id="btnContinue">Ya</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        <div id="spinner-container">
+            <button class="btn btn-primary">
+                <span class="spinner-border spinner-border-sm"></span>
+                Loading..
+            </button>
+        </div>
+            <div class="card-header">
+                <h3 class="card-title">Create Invoice</h3>
+            </div>
+            <div class="card-body verify">
+                <div class="row">
+                    <div class="col-auto">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">Nomor PO</span>
+                                </div>
+                                <input type="text" id="ponumber" name="ponumber" class="form-control" placeholder="Masukkan Nomor PO" style="width: 50%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <button id="searchData" class="btn btn-info">Search</button>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group" id="scanKet">
+                            <div class="input-group-append">
+                                <span id="scanValue" class="input-group-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="example1">
+                <table id="example" class="display nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Check</th>
+                            <th>No. PO</th>
+                            <th>No. GR</th>
+                            <th>No. Item</th>
+                            <th>No. Surat Jalan</th>
+                            <th>Part Number</th>
+                            <th>Part Name</th>
+                            <th>Qty</th>
+                            <th>Harga</th>
+                            <th>Tanggal GR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                </div>
+                <button id="btn-ver" class="btn btn-info"></button>
+            </div>
+            <div class="card-body fill"></div>
+        </div>
+</section>
+
+<div class="modal fade" id="lampiranModal" tabindex="-1" role="dialog" aria-labelledby="lampiranModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lampiranModalLabel">Create QR Code</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-auto">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">QR ID</span>
+                                </div>
+                                <input type="text" id="idqr" name="idqr" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">DPP</span>
+                                </div>
+                                <input type="text" id="totalpayment" name="totalpayment" class="form-control" placeholder="Masukan Total Harga">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">Nomor Invoice</span>
+                                </div>
+                                <input type="text" id="noinvoice" name="noinvoice" class="form-control" placeholder="Masukkan Nomor Invoice">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">Nomor Faktur</span>
+                                </div>
+                                <input type="text" id="nofaktur" name="nofaktur" class="form-control" placeholder="Masukkan Nomor Faktur Pajak">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">Tanggal Invoice</span>
+                                </div>
+                                <input type="date" id="invoicedate" name="invoicedate" class="form-control" placeholder="Masukkan Tanggal Invoice">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <p class="text-muted mt-2 mr-auto">*) Masukkan angka saja tanpa character dan spasi pada input Nomor Faktur.</p>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="createButton" class="btn btn-info">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    /* #example1 {
+        display: none;
+    } */
+
+    #scanKet {
+        display: none;
+    }
+
+    .modal-xl {
+        max-width: 83%;
+    }
+
+    #spinner-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000; /* Pastikan z-index lebih tinggi dari kartu untuk menutupinya */
+        display: none; /* Spinner diatur menjadi tidak ditampilkan secara default */
+    }
+
+    .card.loading::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Lapisan gelap */
+        z-index: 999; /* Pastikan z-index lebih rendah dari spinner */
+    }
+
+    div.dt-processing>div:last-child {
+        display: none;
+    }
+
+    input[type="file"]::file-selector-button {
+        border-radius: 4px;
+        padding: 0 16px;
+        height: 40px;
+        cursor: pointer;
+        background-color: white;
+        border: 1px solid rgba(0, 0, 0, 0.16);
+        box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+        margin-right: 16px;
+        transition: background-color 200ms;
+    }
+
+    /* file upload button hover state */
+    input[type="file"]::file-selector-button:hover {
+        background-color: #f3f4f6;
+    }
+
+    /* file upload button active state */
+    input[type="file"]::file-selector-button:active {
+        background-color: #e5e7eb;
+    }
+
+    #example_result tbody tr {
+        cursor: grab;
+    }
+    
+    #example_result tbody tr:active {
+        cursor: grabbing;
+    }
+
+    /* .spinner-border {
+        width: 50px;
+        height: 50px;
+    } */
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9.17.2/dist/sweetalert2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/sweetalert2@9.17.2/dist/sweetalert2.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
+<script>
+$(document).ready(function(){
+    $('#successModal').modal('show');
+
+    var table = $('#example').DataTable({
+        'processing': true,
+        language: {
+            'loadingRecords': '&nbsp;',
+            lengthMenu: '_MENU_ &nbsp Show',
+            search: '<i class="fa fa-search" aria-hidden="true"></i>',
+            emptyTable: '<div style="height: 120px" class="d-flex justify-content-center align-items-center"><div class="text-center"><i style="font-size:24px" class="far">&#xf07c;</i><p>No Data</p></div></div>',
+            processing: '<div class="spinner-border text-primary" role="status"></div>'
+        },
+        "paging": false,
+        "scrollY": "650px",
+        "sScrollX": "100%",
+        "scrollCollapse": true,
+        layout: {
+            topStart: false,
+            topEnd: 'search',
+            bottomStart: 'pageLength',
+            bottom2Start: 'info',
+            bottomEnd: 'paging',
+        }    
+    });
+
+    $('#ponumber').focus();
+    $('#btn-ver').hide();
+
+    // $(document).on('click', function(event) {
+    //     var target = $(event.target);
+    //     if (!target.is('#ponumber')) {
+    //         $('#ponumber').focus();
+    //     }
+    // });
+
+    // document.getElementById('ponumber').addEventListener('change', function() {
+    //     updateTableContent();
+    // });
+
+    document.getElementById('searchData').addEventListener('click', performSearch)
+    document.addEventListener('keydown', performSearch)
+
+    function performSearch(event) {
+        if (event.type === 'click') {
+            event.preventDefault()
+            updateTableContent();
+        }
+    }
+
+    function updateTableContent() {
+        var poNumber = document.getElementById('ponumber').value;
+
+        if (poNumber){
+            // $('#spinner-container').show();
+            $('#scanValue').text(poNumber);
+            $('#scanKet').show();
+            $('#example').DataTable().processing(true);
+            if (poNumber === '') {
+                return;
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'vendor-json-verify', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    // Tangani respon dari server
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.hasOwnProperty('data_sap')) {
+                        updateTable(data.data_sap);
+                        $('#example1').show();
+                        // $('#spinner-container').hide();
+                        $('#example').DataTable().processing(false);
+                        $('#ponumber').val('');
+                        $('#btn-ver').text('Create Invoice').show();
+                        $('#btn-ver').prop('disabled', true); 
+                    }
+                } else {
+                    var errorData = JSON.parse(xhr.responseText);
+                    if (errorData.hasOwnProperty('error')) {
+                        displayError(errorData.error);
+                        // $('#spinner-container').hide();
+                        $('#example').DataTable().processing(false);
+                        $('#scanResult').show();
+                        $('#ponumber').val('');
+                        // $('#example1').hide();
+                        $('#btn-ver').hide();
+                    }
+                }
+            };
+            var data = JSON.stringify({poNumber: poNumber});
+            xhr.send(data);
+        } else {
+            toastr.info('Masukan input Nomor PO terlebih dahulu')
+        }
+    }
+
+    var selectedRowsData = [];
+
+    function updateTable(data) {
+        var table = $('#example').DataTable();
+        var errorContainer = document.getElementById('errorContainer');
+        errorContainer.innerHTML = '';
+        table.clear().draw();
+        data.forEach(function(value, index) {
+            var year = value.BUDAT.substr(0, 4);
+            var month = value.BUDAT.substr(4, 2);
+            var day = value.BUDAT.substr(6, 2);
+            var date = day + '-' + month + '-' + year;
+            var generatedId = 'row-' + index; 
+            var checkbox = '<div class="form-check text-center"><input class="form-check-input check-item" type="checkbox" style="transform: scale(1.8);" data-row-id="' + generatedId + '"><label class="form-check-label"></label></div>';
+            var wrbtrValue;
+            if (value.KNTTP === 'A') {
+                wrbtrValue = parseFloat(value.NETPR) * value.MENGE * 100;
+            } else {
+                wrbtrValue = parseFloat(value.WRBTR) * 100;
+            }
+            var formattedWrbtrValue = wrbtrValue.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+            table.row.add([
+                checkbox,
+                value.EBELN,
+                value.BELNR,
+                value.EBELP,
+                value.BKTXT,
+                value.MATNR,
+                value.TXZ01,
+                value.MENGE,
+                formattedWrbtrValue,
+                date,
+            ]).draw();
+        });
+
+        $('.check-item').on('change', function() {
+            var rowData = table.row($(this).parents('tr')).data();
+            var rowId = $(this).data('row-id');
+            if ($(this).is(':checked')) {
+                if (!selectedRowsData.some(function(item) { return item.id === rowId; })) {
+                    selectedRowsData.push({ id: rowId, data: rowData });
+                }
+            } else {
+                selectedRowsData = selectedRowsData.filter(function(item) {
+                    return item.id !== rowId;
+                });
+            }
+
+            if (selectedRowsData.length === 0) {
+                $('#btn-ver').prop('disabled', true);
+            } else {
+                $('#btn-ver').prop('disabled', false);
+            }
+        });
+    }
+
+    $('#btn-ver').on('click', function() {
+        if (selectedRowsData.length === 0) {
+            $('#btn-ver').prop('disabled', true);
+            return;
+        } else {
+            $('#btn-ver').prop('disabled', false);
+        }
+
+        $('#confirmationModal .modal-body').text('Pastikan Nomor GR yang dipilih sudah benar');
+        $('#confirmationModal').modal('show');
+        $('#btnContinue').off().on('click', function() {
+            var checkedRowsData = selectedRowsData.map(function(item) {
+                return item.data;
+            });
+            var checkedOrigin = selectedRowsData.map(function(item) {
+                return item.data;
+            });
+
+            $.ajax({
+                url: '<?= base_url() ?>invoicing/unity',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ checkedData: checkedRowsData }),
+                success: function(response) {
+                    $('.verify').hide();
+                    $('.fill').empty();
+
+                    var totalAmount = 0.0;
+
+                    function renderTable(data) {
+                        var tableHtml = `
+                            <p class="text-muted mt-2 mr-auto">*) Sertakan QR Code sebelum mengupload Invoice</p>
+                            <table id="example_result" class="display" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>No. PO</th>
+                                        <th>Part Number</th>
+                                        <th>Part Name</th>
+                                        <th>Qty</th>
+                                        <th>Harga</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sortable-table">
+                        `;
+
+                        data.forEach(function(rowData, index) {
+                            tableHtml += `
+                                <tr data-index="${index}">
+                                    <td>${rowData[1]}</td>
+                                    <td>${rowData[5]}</td>
+                                    <td>${rowData[6]}</td>
+                                    <td>${rowData[7]}</td>
+                                    <td>${rowData[8].toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
+                                </tr>
+                            `;
+                        });
+
+                        checkedRowsData.forEach(function(rowData) {
+                            var strippedString = rowData[8].replace(/[^\d]/g, "");
+                            var numericValue = parseFloat(strippedString) / 100;
+                            totalAmount += numericValue;
+                        });
+                        
+                        var formattedTotalAmount = totalAmount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+                        document.getElementById("totalpayment").value = formattedTotalAmount;
+                        document.getElementById("totalpayment").disabled = true;
+                        $('#idqr').val('<?= $qrid ?>').prop('disabled', true);
+
+                        tableHtml += `
+                            </tbody>
+                                <tfoot style="border-top: 2px solid #000;">
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td><strong>Total Harga:</strong></td>
+                                        <td class="text-right">${formattedTotalAmount}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td><strong>PPN:</strong></td>
+                                        <td class="text-right">(Nominal pajak akan diambil dari Faktur Pajak yang diupload)</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td><strong>Grand Total:</strong></td>
+                                        <td class="text-right font-weight-bold">${formattedTotalAmount}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        `;
+
+                        return tableHtml;
+                    }
+
+                    checkedRowsData = response.result;
+                    
+                    $('.fill').append(renderTable(response.result));
+                    var formHtml = 
+                    `<div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><strong>Lampiran</strong></h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="invoiceForm" enctype="multipart/form-data">
+                                <div class="row">
+                                    <div class="container">
+                                        <div class="row mb-3">
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="pdf_file">Upload Faktur Pajak:</label>
+                                                    <input type="file" class="form-control-file" id="pdf_file" name="pdf_file" accept=".pdf">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="pdf_file_rev">Upload Faktur Pajak Pengganti (Opsional):</label>
+                                                    <input type="file" class="form-control-file" id="pdf_file_rev" name="pdf_file_rev" accept=".pdf">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-3">
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="invoice_file">Upload Invoice:</label>
+                                                    <input type="file" class="form-control-file" id="invoice_file" name="invoice_file" accept=".pdf">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="noInputInvoice">Nomor Invoice:</label>
+                                                    <input type="text" class="form-control" id="noInputInvoice" name="noInputInvoice" placeholder="Pastikan nomor Invoice sama dengan hardcopy">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tambahan Input Nomor Faktur Pajak dan Tanggal Invoice -->
+                                        <div class="row mb-3">
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="noFakturPajak">Nomor Faktur Pajak:</label>
+                                                    <input type="text" class="form-control" id="noFakturPajak" name="noFakturPajak" placeholder="Jangan menggunakan character (, / - )">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="tanggalInvoice">Tanggal Invoice:</label>
+                                                    <input type="date" class="form-control" id="tanggalInvoice" name="tanggalInvoice">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <input type="checkbox" class="form-check-input" id="dpp_lain" name="dpp_lain">
+                                                    <label class="form-check-label font-weight-bold text-primary" for="dpp_lain">
+                                                        Apakah menggunakan DPP Lain?
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 text-right">
+                                                <button type="button" class="btn btn-info" id="generateQrButton"">
+                                                    Generate QR Code
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-danger mt-4 btn-back">Kembali</button>
+                                        <button type="submit" class="btn btn-primary mt-4" disabled>Simpan</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>`;
+
+                    $('.fill').append(formHtml);
+                    $('.fill').show();
+
+                    $('#example_result').DataTable({
+                        searching: false,
+                        paging: false,
+                        layout: {
+                            topStart: false,
+                            topEnd: false,
+                            bottomStart: 'pageLength',
+                            bottomEnd: 'search',
+                            bottom2Start: 'info',
+                            bottom2End: 'paging',
+                        }    
+                    });
+
+
+                    new Sortable(document.getElementById('sortable-table'), {
+                        animation: 150,
+                        onEnd: function(evt) {
+                            var newData = [];
+                            $('#sortable-table tr').each(function() {
+                                var index = $(this).data('index');
+                                newData.push(response.result[index]);
+                            });
+                            checkedRowsData = newData;
+                            console.log('Updated checkedRowsData (after drag):', checkedRowsData);
+                        }
+                    });
+
+                    $('#generateQrButton').click(function() {
+                        var qrid = "<?= $qrid ?>";
+                        var formattedTotalAmount = totalAmount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+                        var url = '<?= base_url() ?>invoicing/generate-invoice-json?' +
+                            'idqr=' + encodeURIComponent(qrid) +
+                            '&totalpayment=' + encodeURIComponent(formattedTotalAmount);
+
+                        window.location.href = url;
+                    });
+
+                    function toggleSubmitButton() {
+                        const isInvoiceFilled = $('#noInputInvoice').val().trim() !== '';
+                        const isFakturPajakFilled = $('#noFakturPajak').val().trim() !== '';
+                        const isTanggalInvoiceFilled = $('#tanggalInvoice').val().trim() !== '';
+                        $('#invoiceForm button[type="submit"]').prop('disabled', !(isInvoiceFilled && isFakturPajakFilled && isTanggalInvoiceFilled));
+                    }
+
+                    toggleSubmitButton();
+                    $('#noInputInvoice, #noFakturPajak, #tanggalInvoice').on('input change', toggleSubmitButton);
+
+                    $('#invoiceForm').submit(function(e) {
+                        e.preventDefault();
+
+                        $('#confirmationModal .modal-body').text('Pastikan data yang diinput sudah sesuai, terutama nomor Invoice. Nomor invoice yang tidak sama dengan hardcopy akan berpotensi ditolak di Finance kami');
+                        $('#confirmationModal').modal('show');
+
+                        $('#btnContinue').off().on('click', function() {
+                            $('#confirmationModal').modal('hide'); 
+
+                            var invoice_number = $('#noInputInvoice').val();
+                            var faktur_number = $('#noFakturPajak').val();
+                            var invoice_date = $('#tanggalInvoice').val();
+                            var file = $('#pdf_file')[0].files[0]; 
+                            var file_rev = $('#pdf_file_rev')[0].files[0]; 
+                            var invoice = $('#invoice_file')[0].files[0];
+                            var isDppLain = $('#dpp_lain').is(':checked') ? 1 : 0;
+
+                            var sendData = {
+                                checkedData: checkedRowsData,
+                                checkDataVerif: checkedOrigin,
+                                invoiceNumber: invoice_number,
+                                fakturNumber: faktur_number,
+                                invoiceDate: invoice_date,
+                                totalAmount: totalAmount,
+                                pdfFile: file,
+                                pdfFileRev: file_rev,
+                                invoiceFile: invoice,
+                                dppLain: isDppLain,
+                            };
+
+                            var formData = new FormData();
+                            formData.append('checkedData', JSON.stringify(sendData.checkedData));
+                            formData.append('checkDataVerif', JSON.stringify(sendData.checkDataVerif));
+                            formData.append('totalAmount', sendData.totalAmount);
+                            formData.append('invoiceNumber', sendData.invoiceNumber);
+                            formData.append('fakturNumber', sendData.fakturNumber);
+                            formData.append('invoiceDate', sendData.invoiceDate);
+                            formData.append('pdfFile', sendData.pdfFile);
+                            formData.append('pdfFileRev', sendData.pdfFileRev);
+                            formData.append('invoiceFile', sendData.invoiceFile);
+                            formData.append('dppLain', sendData.dppLain);
+
+                            $('#spinner-container').show();
+
+                            $.ajax({
+                                url: '<?= base_url() ?>invoicing/makeinvoice',
+                                type: 'POST',
+                                contentType: false,
+                                processData: false,
+                                data: formData,
+                                dataType: 'json', 
+                                success: function(response) {
+                                    $('#spinner-container').hide();
+
+                                    if (response.message === true) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Success',
+                                            text: response.response,
+                                        });
+                                    } else {
+                                        handleErrorResponse(response, formData);
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    $('#spinner-container').hide();
+                                    console.error(error);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Failed',
+                                        text: 'Terjadi kesalahan saat memproses permintaan. Silakan coba lagi nanti.'
+                                    });
+                                }
+                            });
+                        });
+                    });
+
+                    function handleErrorResponse(response, formData) {
+                        if (response.message === false) {
+                            if (response.error_count > 5) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Failed',
+                                    text: response.response,
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Exception',
+                                    cancelButtonText: 'Close'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        handleException(formData);
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Failed',
+                                    text: response.response,
+                                });
+                            }
+                        }
+                    }
+
+                    function handleException(formData) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Confirmation',
+                            text: 'Data ini akan tetap diteruskan dengan pertimbangan tertentu oleh pihak MAJ, Data anda baru dapat diproses setelah mendapat persetujuan oleh Pihak MAJ',
+                            showCancelButton: true,
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $('#spinner-container').show();
+                                $.ajax({
+                                    url: '<?= base_url() ?>exception/makexception', 
+                                    type: 'POST',
+                                    contentType: false,
+                                    processData: false,
+                                    data: formData,
+                                    dataType: 'json',
+                                    success: function(response) {
+                                        $('#spinner-container').hide();
+                                        if (response.message === true) {
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Berhasil',
+                                                text: 'Data Berhasil Diteruskan, silahkan Konfirmasi ke Pihak Purchasing Kami',
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Gagal',
+                                                text: 'Gagal mengirim file ke server.',
+                                            });
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        $('#spinner-container').hide();
+                                        console.error(error);
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Failed',
+                                            text: 'Terjadi kesalahan saat mengirim file.',
+                                        });
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Dibatalkan',
+                                    text: 'Aksi telah dibatalkan.',
+                                });
+                            }
+                        });
+                    }
+
+                    $('.btn-back').on('click', function() {
+                        $('.fill').hide();
+                        $('.verify').show();
+                    });
+                },
+                error: function(xhr, status, error) {
+                    if (xhr.status === 403) {
+                        toastr.error('Anda tidak memiliki izin untuk melakukan aksi ini');
+                    } else {
+                        console.error('Terjadi kesalahan:', error);
+                    }
+                }
+            });
+            $('#confirmationModal').modal('hide');
+        });
+    });
+
+    function displayError(error) {
+        var table = $('#example').DataTable();
+        var errorContainer = document.getElementById('errorContainer');
+        errorContainer.innerHTML = '';
+        table.clear().draw();
+        if (Array.isArray(error)) {
+            error.forEach(function(message) {
+                errorContainer.innerHTML += '<div class="alert alert-danger">' + message + '</div>';
+            });
+        } else {
+            errorContainer.innerHTML = '<div class="alert alert-danger">' + error + '</div>';
+        }
+    }
+});
+
+$(function () {
+    let minDate, maxDate;
+    
+    DataTable.ext.search.push(function (settings, data, dataIndex) {
+        let min = minDate.val();
+        let max = maxDate.val();
+        let date = new Date(data[4]);
+    
+        if (
+            (min === null && max === null) ||
+            (min === null && date <= max) ||
+            (min <= date && max === null) ||
+            (min <= date && date <= max)
+        ) {
+            return true;
+        }
+        return false;
+    });
+    
+    // Create date inputs
+    minDate = new DateTime('#min', {
+        format: 'DD MMMM YYYY'
+    });
+    maxDate = new DateTime('#max', {
+        format: 'DD MMMM YYYY'
+    });
+    
+    // DataTables initialisation
+    let table = new DataTable('#example');
+    
+    // Refilter the table
+    document.querySelectorAll('#min, #max').forEach((el) => {
+        el.addEventListener('change', () => table.draw());
+    });
+});
+</script>
+
+<?= $this->endSection() ?>

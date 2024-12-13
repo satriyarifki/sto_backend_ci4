@@ -7,6 +7,10 @@
 node_modules/
 dist/
 
+public/uploads/
+vendor/
+public/plugins/
+
 # Compiled Java class files
 *.class
 

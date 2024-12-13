@@ -85,6 +85,8 @@ class receiving_model extends Model
             }
 
             $today = date('Y-m-d');
+            
+            ///////////////////////////////////// Submission Magelang Invoice Everyday /////////////////////////////////////
 
             foreach ($results as $result) {
                 $dueDate = $result['due_date'];
@@ -105,6 +107,8 @@ class receiving_model extends Model
                     return ['error' => "Data dropbox expired. Silahkan registrasi ulang.", 'status' => false];
                 }
             }
+
+            ///////////////////////////////////// Submission Magelang Invoice Everyday /////////////////////////////////////
 
             return array_values($results);
         } else {

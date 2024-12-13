@@ -142,6 +142,8 @@ class Transaction extends BaseController
 
     //////////////////////////////////////////// Process Finance Scan Achievement ////////////////////////////////////////////
 
+    ///////////////////////////////// Pending Dropbox Approve /////////////////////////////////
+
     public function pending_dropbox_index()
     {
         $this->check_permission('Module.View.PendingDropbox');
@@ -170,6 +172,8 @@ class Transaction extends BaseController
 
         return $this->_render_page('dropbox/pending_approve', $data);
     }
+
+    ///////////////////////////////// Pending Dropbox Approve /////////////////////////////////
 
     ///////////////////////////////// Waiting Dropbox Approve /////////////////////////////////
 

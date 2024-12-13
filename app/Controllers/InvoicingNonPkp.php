@@ -60,6 +60,10 @@ class InvoicingNonPkp extends BaseController
         return $this->_render_page('invoicing/verify_transaction/vendor_npkp_verify', $data);
     }
 
+
+    
+////////////// type npkp vendor Invoice verification
+
     public function makeinvoice()
     {
         $data['current_user'] = $this->ionAuth->user()->row();
@@ -230,6 +234,8 @@ class InvoicingNonPkp extends BaseController
 
         echo json_encode($data);
     }
+
+////////////// type npkp vendor Invoice verification
 
     public function generate_npkp_qr()
     {

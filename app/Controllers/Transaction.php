@@ -171,6 +171,8 @@ class Transaction extends BaseController
         return $this->_render_page('dropbox/pending_approve', $data);
     }
 
+    ///////////////////////////////// Waiting Dropbox Approve /////////////////////////////////
+
     public function waiting_dropbox_index()
     {
         $this->check_permission('Module.View.WaitingDropbox');
@@ -199,6 +201,8 @@ class Transaction extends BaseController
 
         return $this->_render_page('dropbox/waiting_approve', $data);
     }
+
+    ///////////////////////////////// Waiting Dropbox Approve /////////////////////////////////
 
     public function cancel_verification()
     {

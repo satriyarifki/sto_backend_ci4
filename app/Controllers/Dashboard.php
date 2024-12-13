@@ -360,6 +360,8 @@ class Dashboard extends BaseController
         echo json_encode($data); 
     }
 
+    ////////////////////////////// Announcement Page //////////////////////////////
+
     public function announcement()
     {
         $permissions = $this->ionAuth->user()->row()->permission;
@@ -454,4 +456,6 @@ class Dashboard extends BaseController
             return redirect()->back()->with('toastr_error', 'Terjadi kesalahan saat menyimpan data.')->withInput();
         }
     }
+
+    ////////////////////////////// Announcement Page //////////////////////////////
 }

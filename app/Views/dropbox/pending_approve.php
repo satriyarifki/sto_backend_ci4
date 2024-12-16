@@ -1,8 +1,5 @@
 <?= $this->extend('template/default') ?>
 <?= $this->section('content') ?>
-
-<!--------------------------------------- Pending Dropbox Approve --------------------------------------->
-
 <section class="content">
     <div class="container-fluid">
         <div class="card">

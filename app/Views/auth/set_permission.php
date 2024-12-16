@@ -34,6 +34,7 @@
                             <tr>
                                 <th>Email</th>
                                 <th>Contact Person Name</th>
+                                <th>Company Name</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -129,6 +130,7 @@ $(document).ready(function(){
             table.row.add([
                 value.email,
                 value.cp_name,
+                value.company_name,
                 '<button class="btn btn-sm btn-primary edit-user" data-id="' + value.id + '">Edit</button>' +
                 ' <button class="btn btn-sm btn-warning set-permission" data-id="' + value.id + '" data-cp_name="' + value.cp_name + '">Set Permission</button>'
             ]).draw();

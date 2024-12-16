@@ -1,9 +1,6 @@
 <?= $this->extend('template/default') ?>
 <?= $this->section('content') ?>
 
-
-<!--------------------------------------- Scan View PUD --------------------------------------->
-
 <section class="content">
 </section>
 

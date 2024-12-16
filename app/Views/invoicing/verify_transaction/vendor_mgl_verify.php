@@ -123,29 +123,9 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-append">
-                                    <span class="input-group-text">DPP</span>
+                                    <span class="input-group-text">Total Payment</span>
                                 </div>
                                 <input type="text" id="totalpayment" name="totalpayment" class="form-control" placeholder="Masukan Total Harga">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-group">
-                            <div class="input-group">
-                                <div class="input-group-append">
-                                    <span class="input-group-text">Nomor Surat Transfer Inventory</span>
-                                </div>
-                                <input type="text" id="noinvoice" name="noinvoice" class="form-control" placeholder="Masukkan Nomor Surat Transfer Inventory">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-group">
-                            <div class="input-group">
-                                <div class="input-group-append">
-                                    <span class="input-group-text">Tanggal Surat Transfer Inventory</span>
-                                </div>
-                                <input type="date" id="invoicedate" name="invoicedate" class="form-control" placeholder="Masukkan Tanggal Surat Transfer Inventory">
                             </div>
                         </div>
                     </div>
@@ -165,7 +145,7 @@
     }
 
     .modal-xl {
-        max-width: 65%;
+        max-width: 35%;
     }
 
     #spinner-container {
@@ -234,6 +214,13 @@ $(document).ready(function(){
 
     var table = $('#example').DataTable({
         'processing': true,
+        'lengthMenu': [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ], 
+        'columnDefs': [ 
+            { 
+                'targets': 0, 
+                'orderable': false 
+            }
+        ],
         language: {
             'loadingRecords': '&nbsp;',
             lengthMenu: '_MENU_ &nbsp Show',
@@ -241,7 +228,7 @@ $(document).ready(function(){
             emptyTable: '<div style="height: 120px" class="d-flex justify-content-center align-items-center"><div class="text-center"><i style="font-size:24px" class="far">&#xf07c;</i><p>No Data</p></div></div>',
             processing: '<div class="spinner-border text-primary" role="status"></div>'
         },
-        "paging": false,
+        
     });
 
     $('#ponumber').focus();
@@ -304,23 +291,28 @@ $(document).ready(function(){
         }
     }
 
-    var selectedRowsData = [];
+    var selectedRowsData = []; 
 
     function updateTable(data) {
         var table = $('#example').DataTable();
         var errorContainer = document.getElementById('errorContainer');
         errorContainer.innerHTML = '';
         table.clear().draw();
-        
+
         data.forEach(function(value, index) {
             var year = value.BUDAT.substr(0, 4);
             var month = value.BUDAT.substr(4, 2);
             var day = value.BUDAT.substr(6, 2);
             var date = day + '-' + month + '-' + year;
+
             var generatedId = 'row-' + index; 
-            var checkbox = '<div class="form-check text-center"><input class="form-check-input check-item" type="checkbox" style="transform: scale(1.8);" data-row-id="' + generatedId + '"><label class="form-check-label"></label></div>';
+            var checkbox = '<div class="form-check text-center">' +
+                '<input class="form-check-input check-item" type="checkbox" style="transform: scale(1.8);" data-row-id="' + generatedId + '">' +
+                '<label class="form-check-label"></label></div>';
+
             var wrbtrValue = parseFloat(value.WRBTR) * 100;
             var formattedWrbtrValue = wrbtrValue.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+
             table.row.add([
                 checkbox,
                 value.EBELN,
@@ -331,32 +323,70 @@ $(document).ready(function(){
                 value.TXZ01,
                 value.MENGE,
                 formattedWrbtrValue,
-                date,
-            ]).draw();
+                date
+            ]);
         });
 
-        $('.check-item').on('change', function() {
-            var rowData = table.row($(this).parents('tr')).data();
-            var rowId = $(this).data('row-id');
-            if ($(this).is(':checked')) {
-                if (!selectedRowsData.some(function(item) { return item.id === rowId; })) {
-                    selectedRowsData.push({ id: rowId, data: rowData });
-                }
-            } else {
-                selectedRowsData = selectedRowsData.filter(function(item) {
-                    return item.id !== rowId;
-                });
-            }
+        table.draw();
 
-            updateButtonState();
-        });
+        handleCheckboxEvents(table);
 
-        $('#selectAll').on('change', function() {
-            var isChecked = $(this).is(':checked');
-            $('.check-item').prop('checked', isChecked).trigger('change');
+        table.on('draw', function() {
+            renderCheckboxState();
         });
     }
 
+    function handleCheckboxEvents(table) {
+        $('#example tbody').off().on('change', '.check-item', function() {
+            var row = $(this).closest('tr');
+            var rowData = table.row(row).data();
+            var rowId = $(this).data('row-id');
+
+            if ($(this).is(':checked')) {
+                if (!selectedRowsData.some(item => item.id === rowId)) {
+                    selectedRowsData.push({ id: rowId, data: rowData });
+                }
+            } else {
+                selectedRowsData = selectedRowsData.filter(item => item.id !== rowId);
+            }
+            updateButtonState();
+        });
+
+        $('#selectAll').off().on('change', function() {
+            var isChecked = $(this).is(':checked');
+
+            var rows = table.rows({ search: 'applied' }).nodes();
+
+            $(rows).find('.check-item').prop('checked', isChecked).each(function() {
+                var row = $(this).closest('tr');
+                var rowData = table.row(row).data();
+                var rowId = $(this).data('row-id');
+
+                if (isChecked) {
+                    if (!selectedRowsData.some(item => item.id === rowId)) {
+                        selectedRowsData.push({ id: rowId, data: rowData });
+                    }
+                } else {
+                    selectedRowsData = selectedRowsData.filter(item => item.id !== rowId);
+                }
+            });
+
+            updateButtonState();
+        });
+    }
+
+    function renderCheckboxState() {
+        var rows = $('#example').DataTable().rows({ search: 'applied' }).nodes();
+
+        $(rows).find('.check-item').each(function() {
+            var rowId = $(this).data('row-id');
+            if (selectedRowsData.some(item => item.id === rowId)) {
+                $(this).prop('checked', true);
+            } else {
+                $(this).prop('checked', false);
+            }
+        });
+    }
 
     function updateButtonState() {
         if (selectedRowsData.length === 0) {
@@ -421,10 +451,6 @@ $(document).ready(function(){
                                 </tr>
                             `;
                         });
-                        tableHtml += `
-                                </tbody>
-                            </table>
-                        `;
 
                         checkedRowsData.forEach(function(rowData) {
                             var strippedString = rowData[8].replace(/[^\d]/g, "");
@@ -436,11 +462,27 @@ $(document).ready(function(){
                         $('#idqr').val('<?= $qrid ?>').prop('disabled', true);
 
                         tableHtml += `
-                            <div class="callout callout-info">
-                                <h5><i class="icon fas fa-money"></i>Total Harga</h5>
-                                <strong>${formattedTotalAmount}</strong>
-                            </div>
+                            </tbody>
+                                <tfoot style="border-top: 2px solid #000;">
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td><strong>Total Harga:</strong></td>
+                                        <td class="text-right">${formattedTotalAmount}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td><strong>PPN:</strong></td>
+                                        <td class="text-right">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td><strong>Grand Total:</strong></td>
+                                        <td class="text-right font-weight-bold">${formattedTotalAmount}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         `;
+
                         return tableHtml;
                     }
 
@@ -454,21 +496,38 @@ $(document).ready(function(){
                             </div>
                             <div class="card-body">
                             <form id="invoiceForm" enctype="multipart/form-data">
-                                <div class="row">
-                                    <div class="col-auto">
-                                        <div class="form-group">
-                                            <label for="invoice_file">Upload Surat Transfer Inventory :</label>
-                                            <input type="file" class="form-control-file" id="invoice_file" name="invoice_file" accept=".pdf">
+                            <div class="row">
+                                    <div class="container">
+                                        <div class="row mb-3">
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="invoice_file">Upload Surat Transfer Gudang:</label>
+                                                    <input type="file" class="form-control-file" id="invoice_file" name="invoice_file" accept=".pdf">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="noInputInvoice">Nomor Transfer Gudang:</label>
+                                                    <input type="text" class="form-control" id="noInputInvoice" name="noInputInvoice" placeholder="Pastikan nomor Transfer Gudang sama dengan hardcopy">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="tanggalInvoice">Tanggal Tranfer Gudang:</label>
+                                                    <input type="date" class="form-control" id="tanggalInvoice" name="tanggalInvoice">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 text-right">
+                                                <button type="button" class="btn btn-info mt-4" data-toggle="modal" data-target="#lampiranModal">
+                                                    Generate QR Code
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-auto ml-auto">
-                                        <div class="form-group">
-                                            <button type="button" class="btn btn-info mt-4" data-toggle="modal" data-target="#lampiranModal">Generate QR Code</button>
-                                        </div>
+                                        
+                                        <button type="button" class="btn btn-danger mt-4 btn-back">Kembali</button>
+                                        <button type="submit" class="btn btn-primary mt-4">Simpan</button>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-danger mt-4 btn-back">Kembali</button>
-                                <button type="submit" class="btn btn-primary mt-4">Simpan</button>
                             </form>
                             </div>
                         </div>
@@ -527,16 +586,10 @@ $(document).ready(function(){
                     $('#createButton').click(function() {
                         var idqr = $('#idqr').val();
                         var totalpayment = $('#totalpayment').val();
-                        var noinvoice = $('#noinvoice').val();
-                        var nofaktur = $('#nofaktur').val();
-                        var invoicedate = $('#invoicedate').val();
 
-                        // Validasi input
                         var inputs = [
                             { id: '#idqr', message: 'Masukkan input QR ID terlebih dahulu' },
                             { id: '#totalpayment', message: 'Masukkan Total Payment terlebih dahulu' },
-                            { id: '#noinvoice', message: 'Masukkan input Nomor Surat Transfer Inventory terlebih dahulu' },
-                            { id: '#invoicedate', message: 'Masukkan Tanggal Surat Transfer Inventory terlebih dahulu' }
                         ];
 
                         var isValid = true;
@@ -551,61 +604,87 @@ $(document).ready(function(){
                         if (isValid) {
                             var url = '<?= base_url()?>invoicingmgl/generate-mgl-qr?' +
                                 'idqr=' + encodeURIComponent(idqr) +
-                                '&totalpayment=' + encodeURIComponent(totalpayment) +
-                                '&noinvoice=' + encodeURIComponent(noinvoice) +
-                                '&invoicedate=' + encodeURIComponent(invoicedate);
+                                '&totalpayment=' + encodeURIComponent(totalpayment);
                             window.location.href = url;
                             $('#lampiranModal').modal('hide');
                         }
                     });
 
+                    function toggleSubmitButton() {
+                        const isInvoiceFilled = $('#noInputInvoice').val().trim() !== '';
+                        const isTanggalInvoiceFilled = $('#tanggalInvoice').val().trim() !== '';
+                        $('#invoiceForm button[type="submit"]').prop('disabled', !(isInvoiceFilled && isTanggalInvoiceFilled));
+                    }
+
+                    toggleSubmitButton();
+                    $('#noInputInvoice, #tanggalInvoice').on('input change', toggleSubmitButton);
+
                     $('#invoiceForm').submit(function(e) {
                         e.preventDefault();
-                        var invoice = $('#invoice_file')[0].files[0]; 
-                        var sendData = {
-                            totalAmount: totalAmount,
-                            checkDataVerif: checkedOrigin,
-                            invoiceFileNonPkp: invoice,
-                        };
 
-                        var formData = new FormData();
-                        formData.append('totalAmount', sendData.totalAmount);
-                        formData.append('checkDataVerif', JSON.stringify(sendData.checkDataVerif));
-                        formData.append('invoiceFileNonPkp', sendData.invoiceFileNonPkp);
-                        $('#spinner-container').show();
-                        $.ajax({
-                            url: '<?= base_url() ?>invoicingmgl/makeinvoice',
-                            type: 'POST',
-                            contentType: false,
-                            processData: false,
-                            data: formData,
-                            dataType: 'json', 
-                            success: function(response) {
-                                if (response.message == true){
-                                    $('#spinner-container').hide();
-                                    let successMessage = '<?= session()->getFlashdata("success") ?>';
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Success',
-                                        text: response.response,
-                                    });
-                                } else if(response.message == false){
-                                    $('#spinner-container').hide();
-                                    let errorMessage = '<?= session()->getFlashdata("error") ?>';
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Failed',
-                                        text: response.response,
-                                    });
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                $('#spinner-container').hide();
-                                console.error(error);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Failed',
-                                    text: 'Terjadi kesalahan saat memproses permintaan. Silakan coba lagi nanti.'
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Konfirmasi Data',
+                            text: 'Pastikan data yang diinput sudah sesuai, terutama nomor Transfer Gudang. Nomor Transfer Gudang yang tidak sama dengan hardcopy akan berpotensi ditolak di Finance kami.',
+                            showCancelButton: true,
+                            confirmButtonText: 'Lanjutkan',
+                            cancelButtonText: 'Batal',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                var invoice = $('#invoice_file')[0].files[0];
+                                var invoice_number = $('#noInputInvoice').val();
+                                var invoice_date = $('#tanggalInvoice').val();
+
+                                var sendData = {
+                                    totalAmount: totalAmount,
+                                    checkDataVerif: checkedOrigin,
+                                    invoiceFileNonPkp: invoice,
+                                    noInvoice: invoice_number,
+                                    dateInvoice: invoice_date,
+                                };
+
+                                var formData = new FormData();
+                                formData.append('totalAmount', sendData.totalAmount);
+                                formData.append('checkDataVerif', JSON.stringify(sendData.checkDataVerif));
+                                formData.append('invoiceFileNonPkp', sendData.invoiceFileNonPkp);
+                                formData.append('noInvoice', sendData.noInvoice);
+                                formData.append('dateInvoice', sendData.dateInvoice);
+                                $('#spinner-container').show();
+                                $.ajax({
+                                    url: '<?= base_url() ?>invoicingmgl/makeinvoice',
+                                    type: 'POST',
+                                    contentType: false,
+                                    processData: false,
+                                    data: formData,
+                                    dataType: 'json', 
+                                    success: function(response) {
+                                        if (response.message == true){
+                                            $('#spinner-container').hide();
+                                            let successMessage = '<?= session()->getFlashdata("success") ?>';
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success',
+                                                text: response.response,
+                                            });
+                                        } else if(response.message == false){
+                                            $('#spinner-container').hide();
+                                            let errorMessage = '<?= session()->getFlashdata("error") ?>';
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Failed',
+                                                text: response.response,
+                                            });
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        $('#spinner-container').hide();
+                                        console.error(error);
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Failed',
+                                            text: 'Terjadi kesalahan saat memproses permintaan. Silakan coba lagi nanti.'
+                                        });
+                                    }
                                 });
                             }
                         });

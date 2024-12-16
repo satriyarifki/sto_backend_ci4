@@ -232,6 +232,7 @@ class M_invoicing extends Model
 
         $builder->where('status_generate !=', 'X');
         $builder->where('approve', '');
+        $builder->where('active', '');
         $builder->where('user_create', $vendor_code);
         $builder->groupBy('invoicing_id');
         return $builder->get()->getResult();

@@ -60,7 +60,7 @@ class Exception extends BaseController
         return $this->_render_page('exception/exception_vendor', $data);
     }
 
-    ///////////////////////////////////////// Exception Process /////////////////////////////////////////
+
 
     public function makexception()
     {
@@ -538,8 +538,6 @@ class Exception extends BaseController
 
         echo json_encode($data);
     }
-
-    ///////////////////////////////////////// Exception Process /////////////////////////////////////////
 
     public function pdf()
     {

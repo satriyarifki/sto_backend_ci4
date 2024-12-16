@@ -899,7 +899,6 @@ class Invoicing extends BaseController
         $pdf->Output('invoice.pdf', 'I');
     }
     
-    ///////////////////////////////////// Cancel Process /////////////////////////////////////
     
     public function cancel_process()
     {
@@ -1035,8 +1034,6 @@ class Invoicing extends BaseController
 
         echo json_encode($data);
     }
-
-    ///////////////////////////////////// Cancel Process /////////////////////////////////////
 
     public function unity()
     {
@@ -1891,7 +1888,6 @@ class Invoicing extends BaseController
         echo json_encode($data);
     }
 
-    ////////////////////////////// onhold process //////////////////////////////
 
     public function onhold_email_v2()
     {
@@ -1981,8 +1977,6 @@ class Invoicing extends BaseController
         }
         echo json_encode($data);
     }
-
-    ////////////////////////////// onhold process //////////////////////////////
 
     public function del_onhold()
     {
@@ -2306,8 +2300,6 @@ class Invoicing extends BaseController
         return $this->_render_page('Miro/miro', $data);
     }
 
-    ////////////////////////////////////////// Filter miro data Invoice based on Vendor Name //////////////////////////////////////////
-
     public function miro_approve()
     {
         $no_invoice = $this->request->getPost('no_invoice');
@@ -2318,8 +2310,6 @@ class Invoicing extends BaseController
         $model = new M_miro();
         $model->updateMiro($no_invoice, $invoicing_id, $status_miro, $nik);
     }
-
-    ////////////////////////////////////////// Filter miro data Invoice based on Vendor Name //////////////////////////////////////////
     
     public function miro_json()
     {

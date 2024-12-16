@@ -107,29 +107,9 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-append">
-                                    <span class="input-group-text">DPP</span>
+                                    <span class="input-group-text">Total Payment</span>
                                 </div>
                                 <input type="text" id="totalpayment" name="totalpayment" class="form-control" placeholder="Masukan Total Harga">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-group">
-                            <div class="input-group">
-                                <div class="input-group-append">
-                                    <span class="input-group-text">Nomor Invoice</span>
-                                </div>
-                                <input type="text" id="noinvoice" name="noinvoice" class="form-control" placeholder="Masukkan Nomor Invoice">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-group">
-                            <div class="input-group">
-                                <div class="input-group-append">
-                                    <span class="input-group-text">Tanggal Invoice</span>
-                                </div>
-                                <input type="date" id="invoicedate" name="invoicedate" class="form-control" placeholder="Masukkan Tanggal Invoice">
                             </div>
                         </div>
                     </div>
@@ -429,10 +409,6 @@ $(document).ready(function(){
                                 </tr>
                             `;
                         });
-                        tableHtml += `
-                                </tbody>
-                            </table>
-                        `;
 
                         checkedRowsData.forEach(function(rowData) {
                             var strippedString = rowData[8].replace(/[^\d]/g, "");
@@ -444,11 +420,27 @@ $(document).ready(function(){
                         $('#idqr').val('<?= $qrid ?>').prop('disabled', true);
 
                         tableHtml += `
-                            <div class="callout callout-info">
-                                <h5><i class="icon fas fa-money"></i>Total Harga</h5>
-                                <strong>${formattedTotalAmount}</strong>
-                            </div>
+                            </tbody>
+                                <tfoot style="border-top: 2px solid #000;">
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td><strong>Total Harga:</strong></td>
+                                        <td class="text-right">${formattedTotalAmount}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td><strong>PPN:</strong></td>
+                                        <td class="text-right">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"></td>
+                                        <td><strong>Grand Total:</strong></td>
+                                        <td class="text-right font-weight-bold">${formattedTotalAmount}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         `;
+
                         return tableHtml;
                     }
 
@@ -463,28 +455,50 @@ $(document).ready(function(){
                             <div class="card-body">
                             <form id="invoiceForm" enctype="multipart/form-data">
                                 <div class="row">
-                                    <div class="col-auto">
-                                        <div class="form-group">
-                                            <label for="invoice_file">Upload Invoice :</label>
-                                            <input type="file" class="form-control-file" id="invoice_file" name="invoice_file" accept=".pdf">
+                                    <div class="container">
+                                        <div class="row mb-3">
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="invoice_file">Upload Invoice :</label>
+                                                    <input type="file" class="form-control-file" id="invoice_file" name="invoice_file" accept=".pdf">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="noInputInvoice">Nomor Invoice:</label>
+                                                    <input type="text" class="form-control" id="noInputInvoice" name="noInputInvoice" placeholder="Pastikan nomor Invoice sama dengan hardcopy">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="tanggalInvoice">Tanggal Invoice:</label>
+                                                    <input type="date" class="form-control" id="tanggalInvoice" name="tanggalInvoice">
+                                                </div>
+                                            </div>
+                                            ${"<?= $current_user->combined ?>" === "X" ? `
+                                            <div class="col-auto">
+                                                <div class="form-group">
+                                                    <label for="faktur_pajak_file">Upload Faktur Pajak :</label>
+                                                    <input type="file" class="form-control-file" id="faktur_pajak_file" name="faktur_pajak_file" accept=".pdf">
+                                                </div>
+                                            </div>
+                                            ` : ''}
                                         </div>
-                                    </div>
-                                    ${"<?= $current_user->combined ?>" === "X" ? `
-                                    <div class="col-auto">
-                                        <div class="form-group">
-                                            <label for="faktur_pajak_file">Upload Faktur Pajak :</label>
-                                            <input type="file" class="form-control-file" id="faktur_pajak_file" name="faktur_pajak_file" accept=".pdf">
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 text-right">
+                                                <button type="button" class="btn btn-info mt-4" data-toggle="modal" data-target="#lampiranModal">
+                                                    Generate QR Code
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    ` : ''}
-                                    <div class="col-auto ml-auto">
-                                        <div class="form-group">
-                                            <button type="button" class="btn btn-info mt-4" data-toggle="modal" data-target="#lampiranModal">Generate QR Code</button>
-                                        </div>
+                                        <button type="button" class="btn btn-danger mt-4 btn-back">Kembali</button>
+                                        <button type="submit" class="btn btn-primary mt-4">Simpan</button>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-danger mt-4 btn-back">Kembali</button>
-                                <button type="submit" class="btn btn-primary mt-4">Simpan</button>
                             </form>
                             </div>
                         </div>
@@ -543,15 +557,10 @@ $(document).ready(function(){
                     $('#createButton').click(function() {
                         var idqr = $('#idqr').val();
                         var totalpayment = $('#totalpayment').val();
-                        var noinvoice = $('#noinvoice').val();
-                        var invoicedate = $('#invoicedate').val();
 
-                        // Validasi input
                         var inputs = [
                             { id: '#idqr', message: 'Masukkan input QR ID terlebih dahulu' },
                             { id: '#totalpayment', message: 'Masukkan Total Payment terlebih dahulu' },
-                            { id: '#noinvoice', message: 'Masukkan input Nomor Invoice terlebih dahulu' },
-                            { id: '#invoicedate', message: 'Masukkan Tanggal Invoice terlebih dahulu' }
                         ];
 
                         var isValid = true;
@@ -566,135 +575,159 @@ $(document).ready(function(){
                         if (isValid) {
                             var url = '<?= base_url()?>invoicingnpkp/generate-npkp-qr?' +
                                 'idqr=' + encodeURIComponent(idqr) +
-                                '&totalpayment=' + encodeURIComponent(totalpayment) +
-                                '&noinvoice=' + encodeURIComponent(noinvoice) +
-                                '&invoicedate=' + encodeURIComponent(invoicedate);
+                                '&totalpayment=' + encodeURIComponent(totalpayment);
                             window.location.href = url;
                             $('#lampiranModal').modal('hide');
                         }
                     });
 
+                    function toggleSubmitButton() {
+                        const isInvoiceFilled = $('#noInputInvoice').val().trim() !== '';
+                        const isTanggalInvoiceFilled = $('#tanggalInvoice').val().trim() !== '';
+                        $('#invoiceForm button[type="submit"]').prop('disabled', !(isInvoiceFilled && isTanggalInvoiceFilled));
+                    }
+
+                    toggleSubmitButton();
+                    $('#noInputInvoice, #tanggalInvoice').on('input change', toggleSubmitButton);
+
                     $('#invoiceForm').submit(function(e) {
                         e.preventDefault();
-                        var invoice = $('#invoice_file')[0].files[0];
-                        var fakturPajak = $('#faktur_pajak_file')[0]?.files[0];
 
-                        var formData = new FormData();
-                        formData.append('totalAmount', totalAmount);
-                        formData.append('checkDataVerif', JSON.stringify(checkedOrigin));
-                        formData.append('invoiceFileNonPkp', invoice);
-                        if (fakturPajak) {
-                            formData.append('fakturPajakFile', fakturPajak);
-                        }
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Konfirmasi Data',
+                            text: 'Pastikan data yang diinput sudah sesuai, terutama nomor Invoice. Nomor invoice yang tidak sama dengan hardcopy akan berpotensi ditolak di Finance kami.',
+                            showCancelButton: true,
+                            confirmButtonText: 'Lanjutkan',
+                            cancelButtonText: 'Batal',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                var invoice = $('#invoice_file')[0].files[0];
+                                var fakturPajak = $('#faktur_pajak_file')[0]?.files[0];
+                                var invoice_number = $('#noInputInvoice').val();
+                                var invoice_date = $('#tanggalInvoice').val();
 
-                        console.log("Invoice File:", formData.get('invoiceFileNonPkp'));
-                        console.log("Faktur Pajak File:", formData.get('fakturPajakFile'));
-
-                        $('#spinner-container').show();
-                        $.ajax({
-                            url: '<?= base_url() ?>invoicingnpkp/makeinvoice',
-                            type: 'POST',
-                            contentType: false,
-                            processData: false,
-                            data: formData,
-                            dataType: 'json', 
-                            success: function(response) {
-                                if (response.message == true){
-                                    $('#spinner-container').hide();
-                                    let successMessage = '<?= session()->getFlashdata("success") ?>';
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Success',
-                                        text: response.response,
-                                    });
-                                } else if(response.message == false){
-                                    $('#spinner-container').hide();
-                                    let errorMessage = '<?= session()->getFlashdata("error") ?>';
-                                    if (response.error_count > 2) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Failed',
-                                            text: response.response,
-                                            showCancelButton: true,
-                                            confirmButtonText: 'Exception',
-                                            cancelButtonText: 'Close'
-                                        }).then((result) => {
-                                            if (result.isConfirmed) {
-                                                setTimeout(() => {
-                                                    Swal.fire({
-                                                        icon: 'warning',
-                                                        title: 'Confirmation',
-                                                        text: 'Data ini akan tetap diteruskan dengan pertimbangan tertentu oleh pihak MAJ, Data anda baru dapat diproses setelah mendapat persetujuan oleh Pihak MAJ',
-                                                        showCancelButton: true,
-                                                        confirmButtonText: 'Ya',
-                                                        cancelButtonText: 'Tidak'
-                                                    }).then((secondResult) => {
-                                                        $('#spinner-container').show();
-                                                        if (secondResult.isConfirmed) {
-                                                            $.ajax({
-                                                                url: '<?= base_url() ?>exception/makeinvoicenpkp', 
-                                                                type: 'POST',
-                                                                contentType: false,
-                                                                processData: false,
-                                                                data: formData,
-                                                                dataType: 'json',
-                                                                success: function(response) {
-                                                                    $('#spinner-container').hide();
-                                                                    if (response.message == true) {
-                                                                        Swal.fire({
-                                                                            icon: 'success',
-                                                                            title: 'Berhasil',
-                                                                            text: response.response,
-                                                                        });
-                                                                    } else {
-                                                                        Swal.fire({
-                                                                            icon: 'error',
-                                                                            title: 'Gagal',
-                                                                            text: 'Gagal mengirim file ke server.',
-                                                                        });
-                                                                    }
-                                                                },
-                                                                error: function(xhr, status, error) {
-                                                                    console.error(error);
-                                                                    Swal.fire({
-                                                                        icon: 'error',
-                                                                        title: 'Failed',
-                                                                        text: 'Terjadi kesalahan saat mengirim file.',
-                                                                    });
-                                                                }
-                                                            })
-                                                        } else {
-                                                            setTimeout(() => {
-                                                                Swal.fire({
-                                                                    icon: 'info',
-                                                                    title: 'Dibatalkan',
-                                                                    text: 'Aksi telah dibatalkan.',
-                                                                });
-                                                            }, 1000); 
-                                                        }
-                                                    });
-                                                }, 1000); 
-                                            }
-                                        });
-                                    }
-
-                                    else {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Failed',
-                                            text: response.response,
-                                        });
-                                    }
+                                var formData = new FormData();
+                                formData.append('totalAmount', totalAmount);
+                                formData.append('checkDataVerif', JSON.stringify(checkedOrigin));
+                                formData.append('invoiceFileNonPkp', invoice);
+                                formData.append('noInputInvoice', invoice_number);
+                                formData.append('tanggalInvoice', invoice_date);
+                                if (fakturPajak) {
+                                    formData.append('fakturPajakFile', fakturPajak);
                                 }
-                            },
-                            error: function(xhr, status, error) {
-                                $('#spinner-container').hide();
-                                console.error(error);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Failed',
-                                    text: 'Terjadi kesalahan saat memproses permintaan. Silakan coba lagi nanti.'
+
+                                console.log("Invoice File:", formData.get('invoiceFileNonPkp'));
+                                console.log("Faktur Pajak File:", formData.get('fakturPajakFile'));
+
+                                $('#spinner-container').show();
+                                $.ajax({
+                                    url: '<?= base_url() ?>invoicingnpkp/makeinvoice',
+                                    type: 'POST',
+                                    contentType: false,
+                                    processData: false,
+                                    data: formData,
+                                    dataType: 'json', 
+                                    success: function(response) {
+                                        if (response.message == true){
+                                            $('#spinner-container').hide();
+                                            let successMessage = '<?= session()->getFlashdata("success") ?>';
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success',
+                                                text: response.response,
+                                            });
+                                        } else if(response.message == false){
+                                            $('#spinner-container').hide();
+                                            let errorMessage = '<?= session()->getFlashdata("error") ?>';
+                                            if (response.error_count > 2) {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Failed',
+                                                    text: response.response,
+                                                    showCancelButton: true,
+                                                    confirmButtonText: 'Exception',
+                                                    cancelButtonText: 'Close'
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        setTimeout(() => {
+                                                            Swal.fire({
+                                                                icon: 'warning',
+                                                                title: 'Confirmation',
+                                                                text: 'Data ini akan tetap diteruskan dengan pertimbangan tertentu oleh pihak MAJ, Data anda baru dapat diproses setelah mendapat persetujuan oleh Pihak MAJ',
+                                                                showCancelButton: true,
+                                                                confirmButtonText: 'Ya',
+                                                                cancelButtonText: 'Tidak'
+                                                            }).then((secondResult) => {
+                                                                $('#spinner-container').show();
+                                                                if (secondResult.isConfirmed) {
+                                                                    $.ajax({
+                                                                        url: '<?= base_url() ?>exception/makeinvoicenpkp', 
+                                                                        type: 'POST',
+                                                                        contentType: false,
+                                                                        processData: false,
+                                                                        data: formData,
+                                                                        dataType: 'json',
+                                                                        success: function(response) {
+                                                                            $('#spinner-container').hide();
+                                                                            if (response.message == true) {
+                                                                                Swal.fire({
+                                                                                    icon: 'success',
+                                                                                    title: 'Berhasil',
+                                                                                    text: response.response,
+                                                                                });
+                                                                            } else {
+                                                                                Swal.fire({
+                                                                                    icon: 'error',
+                                                                                    title: 'Gagal',
+                                                                                    text: 'Gagal mengirim file ke server.',
+                                                                                });
+                                                                            }
+                                                                        },
+                                                                        error: function(xhr, status, error) {
+                                                                            console.error(error);
+                                                                            Swal.fire({
+                                                                                icon: 'error',
+                                                                                title: 'Failed',
+                                                                                text: 'Terjadi kesalahan saat mengirim file.',
+                                                                            });
+                                                                        }
+                                                                    })
+                                                                } else {
+                                                                    setTimeout(() => {
+                                                                        Swal.fire({
+                                                                            icon: 'info',
+                                                                            title: 'Dibatalkan',
+                                                                            text: 'Aksi telah dibatalkan.',
+                                                                        });
+                                                                    }, 1000); 
+                                                                }
+                                                            });
+                                                        }, 1000); 
+                                                    }
+                                                });
+                                            }
+
+                                            else {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Failed',
+                                                    text: response.response,
+                                                });
+                                            }
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        $('#spinner-container').hide();
+                                        console.error(error);
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Failed',
+                                            text: 'Terjadi kesalahan saat memproses permintaan. Silakan coba lagi nanti.'
+                                        });
+                                    }
                                 });
+
                             }
                         });
                     });

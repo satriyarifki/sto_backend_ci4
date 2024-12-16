@@ -63,15 +63,10 @@ class InvoicingMgl extends BaseController
     {
         $data['idqr'] = $this->request->getGet('idqr');
         $data['totalpayment'] = preg_replace('/[^\d]/', '', $this->request->getGet('totalpayment'));
-        $data['noinvoice'] = $this->request->getGet('noinvoice');
-        $date = date_create($this->request->getGet('invoicedate'));
-        $data['invoicedate'] = date_format($date, 'd/m/Y');
 
         $dataqr = [
             'id_qr' => $data['idqr'],
             'total_payment' => $data['totalpayment'],
-            'no_invoice' => $data['noinvoice'],
-            'invoice_date' => $data['invoicedate'],
         ];
 
         $json_data = json_encode($dataqr);
@@ -81,14 +76,14 @@ class InvoicingMgl extends BaseController
         return $this->response->download($qrCodePath, null)->setFileName('qrcode.png');
     }
 
-
-////////////// Magelang Invoice verification
-
     public function makeinvoice()
     {
         $data['current_user'] = $this->ionAuth->user()->row();
         date_default_timezone_set('Asia/Jakarta');
         $checkDataVerif = json_decode($this->request->getPost('checkDataVerif'), true);
+        $noInvoice = $this->request->getPost('noInvoice');
+        $dateInvoice = date_create($this->request->getPost('dateInvoice'));
+        $invoiceDateFormat = date_format($dateInvoice, 'd/m/Y');
         $totalAmount = floatval($this->request->getPost('totalAmount'));
         $amountFormat = number_format((float) $totalAmount, 0, ',', '.');
         $model = new M_invoicing();
@@ -114,8 +109,8 @@ class InvoicingMgl extends BaseController
                         $decoded_response = $json_output2['output'];
                         $data['id_qr'] = $decoded_response['id_qr'];
                         $data['total_invoice_payment'] = number_format($decoded_response['total_payment'], 0, ',', '.');
-                        $data['no_invoice'] = $decoded_response['no_invoice'];
-                        $data['invoice_date'] = $decoded_response['invoice_date'];
+                        $data['no_invoice'] = $noInvoice;
+                        $data['invoice_date'] = $invoiceDateFormat;
                         $data['amountFormat'] = $amountFormat;
 
                         $existingInvoice = $modelmgl->where('no_invoice', $data['no_invoice'])
@@ -213,8 +208,6 @@ class InvoicingMgl extends BaseController
 
         echo json_encode($data);
     }
-
-////////////// Magelang Invoice verification
 
     public function vendor_verify_json()
     {

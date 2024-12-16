@@ -4,8 +4,6 @@ namespace App\Controllers\Andon;
 use App\Controllers\BaseController;
 use App\Models\M_dropbox;
 
-///////////////////////////////////////// Andon Invoice Achievement /////////////////////////////////////////
-
 class Rundown extends BaseController
 {
     public function index()
@@ -70,6 +68,4 @@ class Rundown extends BaseController
         $result = $model->getDropboxMiro();
         return $this->response->setJSON($result);
     }
-
-    ///////////////////////////////////////// Andon Invoice Achievement /////////////////////////////////////////
 }

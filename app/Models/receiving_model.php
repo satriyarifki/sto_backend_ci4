@@ -85,13 +85,15 @@ class receiving_model extends Model
             }
 
             $today = date('Y-m-d');
-            
-            ///////////////////////////////////// Submission Magelang Invoice Everyday /////////////////////////////////////
 
             foreach ($results as $result) {
                 $dueDate = $result['due_date'];
-
                 $userGenerate = $result['user_generate'];
+                $statusReceive = $result['status_receive'];
+
+                if ($statusReceive === 'Y') {
+                    return ['error' => "Data ini sudah dikonfirmasi.", 'status' => false];
+                }
 
                 if ($userGenerate === '0000100444') {
                     continue;
@@ -107,8 +109,6 @@ class receiving_model extends Model
                     return ['error' => "Data dropbox expired. Silahkan registrasi ulang.", 'status' => false];
                 }
             }
-
-            ///////////////////////////////////// Submission Magelang Invoice Everyday /////////////////////////////////////
 
             return array_values($results);
         } else {

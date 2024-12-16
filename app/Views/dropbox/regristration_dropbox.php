@@ -147,8 +147,6 @@ $(document).ready(function(){
     document.getElementById('searchData').addEventListener('click', performSearch)
     document.addEventListener('keydown', performSearch)
 
-    /// Submission Invoice Vendor only in Tuesday and Wednesday ///
-
     $('#datepicker').datepicker({
         dateFormat: 'yy-mm-dd',
         beforeShowDay: function(date) {
@@ -160,8 +158,6 @@ $(document).ready(function(){
             }
         }
     });
-
-    /// Submission Invoice Vendor only in Tuesday and Wednesday ///
 
     function performSearch(event) {
         if (event.type === 'click') {

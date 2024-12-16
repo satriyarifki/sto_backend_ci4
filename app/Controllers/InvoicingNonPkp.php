@@ -60,15 +60,14 @@ class InvoicingNonPkp extends BaseController
         return $this->_render_page('invoicing/verify_transaction/vendor_npkp_verify', $data);
     }
 
-
-    
-////////////// type npkp vendor Invoice verification
-
     public function makeinvoice()
     {
         $data['current_user'] = $this->ionAuth->user()->row();
         date_default_timezone_set('Asia/Jakarta');
         $checkDataVerif = json_decode($this->request->getPost('checkDataVerif'), true);
+        $invoiceNumber = $this->request->getPost('noInputInvoice');
+        $invoiceDate = date_create($this->request->getPost('tanggalInvoice'));
+        $invoiceDateFormat = date_format($invoiceDate, 'd/m/Y');
         $totalAmount = floatval($this->request->getPost('totalAmount'));
         $amountFormat = number_format((float) $totalAmount, 0, ',', '.');
         $model = new M_invoicing();
@@ -132,8 +131,8 @@ class InvoicingNonPkp extends BaseController
                         $decoded_response = json_decode($json_output2['output'], true);
                         $data['id_qr'] = $decoded_response['id_qr'];
                         $data['total_invoice_payment'] = number_format($decoded_response['total_payment'], 0, ',', '.');
-                        $data['no_invoice'] = $decoded_response['no_invoice'];
-                        $data['invoice_date'] = $decoded_response['invoice_date'];
+                        $data['no_invoice'] = $invoiceNumber;
+                        $data['invoice_date'] = $invoiceDateFormat;
                         $data['amountFormat'] = $amountFormat;
 
                         $existingInvoice = $modelnpkp->where('no_invoice', $data['no_invoice'])
@@ -234,8 +233,6 @@ class InvoicingNonPkp extends BaseController
 
         echo json_encode($data);
     }
-
-////////////// type npkp vendor Invoice verification
 
     public function generate_npkp_qr()
     {

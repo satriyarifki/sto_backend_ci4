@@ -1,8 +1,6 @@
 <?= $this->extend('template/default') ?>
 <?= $this->section('content') ?>
 
-<!------------------------------------ Finance Scan Achievement ------------------------------------>
-
 <section class="content">
 </section>
 

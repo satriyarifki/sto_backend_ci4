@@ -246,7 +246,6 @@ class Sto extends BaseController
         $model = new M_recap();
         $bufferModel = new M_sto();
         $id_tags = [];
-        $id_event = $bufferModel->getCurrentEventId();
 
         for ($i = 0; $i < $total_tag; $i++) {
             $id_tag = $bufferModel->generatedID();
@@ -259,7 +258,6 @@ class Sto extends BaseController
                 'part_number' => $part_number,
                 'material_description' => $part_desc,
                 'type'        => $type,
-                'id_event'    => $id_event,
                 'created_at'  => date('Y-m-d H:i:s')
             ];
 
@@ -298,7 +296,6 @@ class Sto extends BaseController
             'part_number' => $part_number,
             'material_description' => $part_desc,
             'type'        => $type,
-            'id_event'    => $bufferModel->getCurrentEventId(),
             'created_at'  => date('Y-m-d H:i:s')
         ];
 
@@ -411,7 +408,6 @@ class Sto extends BaseController
                     'nik_b'                => $group == 'B' ? $nik : null,
                     'updated_a'            => $group == 'A' ? date('Y-m-d H:i:s') : null,
                     'updated_b'            => $group == 'B' ? date('Y-m-d H:i:s') : null,
-                    'id_event'             => $model->getCurrentEventId(),
                     'created_at'           => date('Y-m-d H:i:s')
                 ];
 
@@ -679,7 +675,6 @@ class Sto extends BaseController
         $inserted = 0;
         $errors   = [];
         $generatedIdTags = [];
-        $id_event = $tagModel->getCurrentEventId();
         // var_dump($rows);
         foreach ($rows as $index => $row) {
             [$area, $part_number, $job_number, $total_tag] = $row;
@@ -716,7 +711,6 @@ class Sto extends BaseController
                     'material_description' => $master['material_description'],
                     'type' => $master['type'],
                     'customer' => $master['customer'].' '.$master['plant'],
-                    'id_event' => $id_event,
                     'created_at' => date('Y-m-d H:i:s')
                 ]);
                 $generatedIdTags[] = $id_tag;

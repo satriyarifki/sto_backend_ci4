@@ -16,12 +16,6 @@ class M_sto extends Model
     protected $DBGroup = 'default';
 
 
-    public function getCurrentEventId()
-    {
-        $row = $this->db->table('sto_events')->where('status', 1)->get()->getRowArray();
-        return $row ? $row['id_event'] : null;
-    }
-
     public function generatedID()
     {
         $builder = $this->db->table($this->table_buffer);

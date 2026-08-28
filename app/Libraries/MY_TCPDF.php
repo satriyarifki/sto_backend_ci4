@@ -15,22 +15,16 @@ class MY_TCPDF extends TCPDF {
     //Page header
     public function Header() {
         $image_file = ROOTPATH.'public/img/ico.png';
-        $this->Image($image_file, '', '', 18);
-        $this->SetFont('helvetica', 'B', 11);
+        $this->Image($image_file, '', '', 22);
+        $this->SetFont('helvetica', 'B', 25);
         $this->SetX(38);
-        $this->Cell(0, 2, 'PT. Mekar Armada Jaya', 0, 1, '', 0, '', 0);
-        $this->SetFont('helvetica', '', 9);
+        $this->Cell(0, 2, 'KARTU INVENTORY', 0, 1, '', 0, '', 0);
+        $this->SetFont('helvetica', '', 20);
         $this->SetX(38);
-        $this->Cell(0, 2, 'Jl. Raya Diponegoro KM.38 No.107, Setiamekar, Jatimulya', 0, 1, '', 0, '', 0);
+        $this->Cell(0, 2, 'TAG STO', 0, 1, '', 0, '', 0);
         $this->SetX(38);
-        $this->Cell(0, 2, 'Kec. Tambun Sel., Kabupaten Bekasi, Jawa Barat 17510', 0, 1, '', 0, '', 0);
-        $this->SetX(38);
-        $this->Cell(0, 2, 'Telp. (021) 88346911', 0, 1, '', 0, '', 0);
-        $this->SetX(38);
-        $this->Cell(0, 2, 'https://newarmada.biz/', 0, 1, '', 0, '', 0);
-        $this->write2DBarcode($this->barcodeData, 'QRCODE,H', 0, 3, 20, 20, ['position' => 'R'], 'N');
+        $this->write2DBarcode($this->barcodeData, 'QRCODE,H', 0, 3, 31, 31, ['position' => 'R'], 'N');
         $style = array('width' => 0.25, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0));
-        $this->Line(15, 27, 195, 27, $style);
 
     }
 

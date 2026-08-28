@@ -311,7 +311,7 @@
             var currentDate = new Date(startDate);
             var end = new Date(endDate);
             var hariLibur = [
-                "2024-11-27"
+                "2025-05-29",
             ];
 
             while (currentDate <= end) {

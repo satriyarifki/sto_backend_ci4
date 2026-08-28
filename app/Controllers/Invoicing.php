@@ -804,7 +804,6 @@ class Invoicing extends BaseController
     public function pdf()
     {
         $data['title'] = 'Print Invoice';
-
         $data['ionAuth'] = $this->ionAuth;
         $data['current_user'] = $this->ionAuth->user()->row();
         $data['css']['header'] = array(
@@ -841,10 +840,9 @@ class Invoicing extends BaseController
 
         $M_curl = new M_curl();
         $this->SAP_PARAMS['function'] = 'Z_QC';
-        // Request pertama
         $this->SAP_PARAMS['params'] = [
             'RPT' => 'P_GR_SELECT',
-            'CNMA' => $data['current_user']->vendor_code,//$data['current_user']->id_vendor,
+            'CNMA' => $data['current_user']->vendor_code,
             'P_DATE_LOW' => $formatted_date_low,
             'P_DATE_HIGH' => $formatted_date_high,
             'P_EBELN' => $po_number,
@@ -861,7 +859,6 @@ class Invoicing extends BaseController
                     $filtered_data[] = $item;
                 }
             }
-            // Ubah kembali ke array indeks untuk mendapatkan satu baris per kelompok
             $data['data_sap'] = array_values($filtered_data);
         } else {
             $data['error'] = isset($sap['message']) ? $sap['message'] : 'Terjadi kesalahan dalam permintaan SAP.';
@@ -898,7 +895,6 @@ class Invoicing extends BaseController
         $this->response->setContentType('application/pdf');
         $pdf->Output('invoice.pdf', 'I');
     }
-    
     
     public function cancel_process()
     {

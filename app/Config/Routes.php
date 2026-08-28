@@ -5,7 +5,59 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Auth::login');
+
+$routes->group('documentation', ['namespace' => 'App\Controllers'], function ($routes) {
+	$routes->get('/', 'Sto::index');
+	$routes->get('preparation-trial', 'Sto::prep');
+	// $routes->add('store', 'Sto::store_sto');
+	$routes->get('report', 'Sto::report');
+	$routes->get('report', 'Sto::report');
+	$routes->add('report-query', 'Sto::report_process');
+	$routes->add('store', 'Sto::store_data_sto');
+	$routes->post('store-mobile', 'Sto::store_data_sto_mobile');
+	$routes->get('get-store', 'Sto::get_data_sto');
+	$routes->post('get-nik', 'Sto::get_data_nik');
+	$routes->post('rev-qty', 'Sto::rev_qty');
+	$routes->post('update-store', 'Sto::update_data_sto');
+	$routes->get('master-area', 'Sto::master_area');
+	$routes->get('master-address', 'Sto::master_address');
+	$routes->get('master-job-number', 'Sto::master_job_number');
+	$routes->get('master-part-number', 'Sto::master_part_number');
+	$routes->get('master-part-job-number', 'Sto::master_part_job_number');
+	$routes->get('master-part-description', 'Sto::master_part_desc');
+	$routes->get('master-type', 'Sto::master_type');
+	$routes->get('tag-sto', 'Sto::pdf_tag_sto');
+	$routes->get('tag-sto-batch', 'Sto::pdf_tag_sto_batch');
+	$routes->post('insert-part', 'Sto::InsertData');
+	$routes->get('get-part-mobile', 'Sto::part_number_flutter');
+	$routes->post('get-part-detail', 'Sto::getPartDetailByNumber');
+	$routes->post('store-excel', 'Sto::store_data_sto_from_excel');
+	$routes->get('download-sto-template', 'Sto::download_sto_template');
+
+	// $routes->get('dn', 'Delivery::get_delivery');
+});
+
+$routes->group('combin-kanban', ['namespace' => 'App\Controllers', 'filter' => 'jwtAuth'], function ($routes) {
+	$routes->post('tmmin-kanban', 'CombinKanban::tmmin_combin_kanban');
+	$routes->post('tmmin-kanban2', 'CombinKanban::tmmin_combin_kanban2');
+	$routes->post('hmmi-kanban', 'CombinKanban::hmmi_combin_kanban');
+	$routes->post('adm-kanban', 'CombinKanban::adm_combin_kanban');
+	$routes->post('history-kanban', 'CombinKanban::history_kanban');
+	$routes->post('dn-require', 'CombinKanban::dn_require');
+	$routes->post('dummy-api', 'CombinKanban::dummy_api');
+});
+
+$routes->group('emanifest', ['namespace' => 'App\Controllers', 'filter' => 'jwtAuth'], function ($routes) {
+	$routes->post('get-daily-order', 'Emanifest::dailyInsertOrder');
+	$routes->post('get-data-internal', 'Emanifest::get_data_internal_manifest');
+	$routes->post('get-qty-kanban', 'Emanifest::get_qty_kanban_manifest');
+	$routes->post('get-id-skid', 'Emanifest::get_id_skid');
+	$routes->post('confirm-kanban', 'Emanifest::confirm_kanban');
+	$routes->post('confirm-manifest', 'Emanifest::confirm_manifest');
+	$routes->post('confirm-flag', 'Emanifest::confirm_flag');
+	$routes->post('cancel-flag', 'Emanifest::cancel_flag');
+	$routes->get('list-skid', 'Emanifest::list_skid');
+});
 
 $routes->group('users', ['namespace' => 'App\Controllers'], function ($routes) {
 	$routes->get('profile', 'Users::index');
@@ -155,6 +207,7 @@ $routes->group('auth', ['namespace' => 'App\Controllers'], function ($routes) {
 	$routes->get('get-permission/(:any)', 'Auth::getPermission/$1');
 	$routes->add('set-right', 'Auth::setPermission');
 	$routes->add('change-password', 'Auth::change_password');
+	$routes->post('login-app', 'Auth::apiLogin');
 });
 
 $routes->group('transaction', ['namespace' => 'App\Controllers'], function ($routes) {

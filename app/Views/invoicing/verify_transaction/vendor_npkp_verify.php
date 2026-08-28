@@ -640,7 +640,7 @@ $(document).ready(function(){
                                         } else if(response.message == false){
                                             $('#spinner-container').hide();
                                             let errorMessage = '<?= session()->getFlashdata("error") ?>';
-                                            if (response.error_count > 2) {
+                                            if (response.error_count > 3) {
                                                 Swal.fire({
                                                     icon: 'error',
                                                     title: 'Failed',

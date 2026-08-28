@@ -6,16 +6,16 @@ use CodeIgniter\Model;
 
 class M_auth extends Model
 {
-    protected $table = 'users'; // Gantilah 'nama_tabel' dengan nama tabel sebenarnya
+    protected $table = 'users'; 
     protected $table1 = 'purchasing_group';
-    protected $primaryKey = 'id'; // Gantilah 'id' dengan primary key tabel Anda
+    protected $primaryKey = 'id';
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
     protected $allowedFields = ['username', 'password', 'company_title', 'company_name', 'npwp_number', 'abbreviated_name', 'abbreviated_supplier', 
     'estabilished_date', 'company_website', 'supplier_category', 'vendor_code', 'join_date', 'supplier_group', 'official_letter_attachment', 'country',
     'provience', 'city', 'zip_code', 'company_phone_number', 'company_fax_number', 'logo_attachment', 'capital', 'asset_value',
     'supplier_affiliation', 'company_clasification', 'technical_assistant', 'start_operation_date', 'currency', 'cp_username', 'cp_name',
-    'cp_number', 'cp_title', 'cp_email1', 'cp_email2', 'address']; // Sesuaikan dengan kolom-kolom tabel Anda
+    'cp_number', 'cp_title', 'cp_email1', 'cp_email2', 'address'];
 
     public function generateId()
     {
@@ -151,5 +151,17 @@ class M_auth extends Model
                 ->update($data);
                 
         return $result;
+    }
+
+    public function getUserWithRole($userId)
+    {
+        $builder = $this->db->table('users');
+        $builder->select('users.id, users.nik_user, users.email, users.cp_name, roles.id as role_id, roles.role_name, roles.payload');
+        $builder->join('users_groups', 'users.id = users_groups.user_id');
+        $builder->join('roles', 'users_groups.roles_id = roles.id');
+        $builder->where('users.id', $userId);
+
+        $query = $builder->get();
+        return $query->getRow();
     }
 }

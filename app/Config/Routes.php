@@ -6,9 +6,13 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
+$routes->options('(:any)', function () {
+    return response()->setStatusCode(200);
+});
+
 $routes->group('documentation', ['namespace' => 'App\Controllers'], function ($routes) {
 	$routes->get('/', 'Sto::index');
-	$routes->get('preparation-trial', 'Sto::prep');
+	$routes->get('preparation', 'Sto::prep');
 	// $routes->add('store', 'Sto::store_sto');
 	$routes->get('report', 'Sto::report');
 	$routes->get('report', 'Sto::report');
@@ -33,18 +37,99 @@ $routes->group('documentation', ['namespace' => 'App\Controllers'], function ($r
 	$routes->post('get-part-detail', 'Sto::getPartDetailByNumber');
 	$routes->post('store-excel', 'Sto::store_data_sto_from_excel');
 	$routes->get('download-sto-template', 'Sto::download_sto_template');
-
+	
 	// $routes->get('dn', 'Delivery::get_delivery');
+});
+
+$routes->group('api/sto', ['namespace' => 'App\Controllers\Api\Sto'], static function ($routes) {
+
+    $routes->post('register', 'Auth::register');
+    $routes->post('login',    'Auth::login');
+
+    // Pengelolaan akun
+    $routes->get('user-list',    'Users::list');
+    $routes->post('user-update', 'Users::update');
+    $routes->post('user-delete', 'Users::delete');
+
+    // Device
+    $routes->get('device-list',    'Devices::list');
+    $routes->get('device-detail',  'Devices::detail');
+    $routes->post('device-create', 'Devices::create');
+    $routes->post('device-update', 'Devices::update');
+    $routes->post('device-delete', 'Devices::delete');
+
+    // Event
+    $routes->get('event-list',    'Events::list');
+    $routes->get('event-detail',  'Events::detail');
+    $routes->post('event-create', 'Events::create');
+    $routes->post('event-update', 'Events::update');
+    $routes->post('event-delete', 'Events::delete');
+
+    // Tag -- terbuka
+    $routes->get('part-list',       'Tags::partList');
+    $routes->get('tag-detail',      'Tags::tagDetail');
+    $routes->post('print-tag',      'Tags::printTag');
+    $routes->post('print-tag-bulk', 'Tags::printTagBulk');
+    $routes->post('scan-tag',     'Tags::scanTag');
+    $routes->post('cancel-tag',   'Tags::cancelTag');
+    $routes->get('scan-history',  'Tags::scanHistory');
+
+    // Tag OK
+    $routes->get('tag-ok-prepare',  'TagOkData::detailPrepare');
+    $routes->get('tag-ok',          'TagOkData::detail');
+    $routes->get('tag-ok-list',     'TagOkData::list');
+    $routes->post('tag-ok-open',    'TagOkData::open');
+    $routes->post('tag-ok-scan',    'TagOkData::scan');
+    $routes->post('tag-ok-cancel',  'TagOkData::cancel');
+
+    // Pesan operator <-> admin
+    $routes->get('chat-threads',    'Chat::threads');
+    $routes->get('chat-messages',   'Chat::messages');
+    $routes->post('chat-send',      'Chat::send');
+    $routes->post('chat-read',      'Chat::read');
+    $routes->post('chat-mute',      'Chat::mute');      // admin
+
+    // Keadaan cetak & setelan printer
+    $routes->post('print-status',    'Printing::printStatus');
+    $routes->get('print-history',    'Printing::printHistory');
+    $routes->get('printer-setting',  'Printing::printerSettingGet');
+    $routes->post('printer-setting', 'Printing::printerSettingSave');  // admin
+
+    // Pengajuan pembatalan
+    $routes->post('cancel-request',  'Tags::cancelRequest');
+    $routes->get('cancel-requests',  'Tags::cancelRequests');   // admin
+    $routes->post('cancel-approve',  'Tags::cancelApprove');    // admin
+    $routes->post('cancel-reject',   'Tags::cancelReject');     // admin
+
+    // Laporan -- terbuka
+    $routes->get('summary-area', 'Reports::summaryArea');
+    $routes->get('summary-part', 'Reports::summaryPart');
+
+    $routes->post('cancel-tag-ok', 'TagOk::cancel');
+});
+
+$routes->group('tag-ok', ['namespace' => 'App\Controllers'], function ($routes) {
+	$routes->post('scan', 'Tag_ok::get_tag_ok');
+	$routes->get('scan', 'Tag_ok::get_tag_ok');
+	$routes->post('store', 'Tag_ok::store_tag_ok');
+	$routes->post('history', 'Tag_ok::history');
+	$routes->post('delete-scan', 'Tag_ok::delete_scan');
 });
 
 $routes->group('combin-kanban', ['namespace' => 'App\Controllers', 'filter' => 'jwtAuth'], function ($routes) {
 	$routes->post('tmmin-kanban', 'CombinKanban::tmmin_combin_kanban');
 	$routes->post('tmmin-kanban2', 'CombinKanban::tmmin_combin_kanban2');
 	$routes->post('hmmi-kanban', 'CombinKanban::hmmi_combin_kanban');
+	$routes->get('hmmi-kanban-preview', 'CombinKanban::hmmi_combin_preview');
+	$routes->get('adm-trip', 'CombinKanban::adm_trip_all');
 	$routes->post('adm-kanban', 'CombinKanban::adm_combin_kanban');
+	$routes->post('polybox-kanban', 'CombinKanban::polybox_combin_kanban');
 	$routes->post('history-kanban', 'CombinKanban::history_kanban');
 	$routes->post('dn-require', 'CombinKanban::dn_require');
 	$routes->post('dummy-api', 'CombinKanban::dummy_api');
+	$routes->post('adm_list_shipping', 'CombinKanban::adm_list_shipping');
+	$routes->post('mieruka_shipping_customer', 'CombinKanban::mieruka_shipping_customer');
+	$routes->get('mieruka_shipping', 'CombinKanban::mieruka_shipping');
 });
 
 $routes->group('emanifest', ['namespace' => 'App\Controllers', 'filter' => 'jwtAuth'], function ($routes) {
@@ -314,7 +399,7 @@ $routes->get('dropbox-id', 'Temp::idtest_dropbox');
 $routes->get('serbaguna', 'Temp::serbaguna');
 
 $routes->get('run-python', 'Qrpython::runPythonScript');
-
+$routes->post('combin-kanban/search-tag-ok', 'CombinKanban::search_tag_ok');
 $routes->set404Override(function() {
 	return view('template/error_404');
 });

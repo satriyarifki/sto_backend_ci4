@@ -6,6 +6,7 @@ use CodeIgniter\Config\BaseConfig;
 
 class App extends BaseConfig
 {
+    // 
     /**
      * --------------------------------------------------------------------------
      * Base Site URL
@@ -16,8 +17,7 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    // public string $baseURL = 'https://mspin.newarmada.biz/sto/public/';
-    public string $baseURL = 'https://localhost/sto/public/';
+    public string $baseURL = 'https://mspin.newarmada.biz/sto/public/';
     // public string $baseURL = 'http://e-inv.newarmada.biz:30107/portal-supplier-maj/public/';
 
     // public string $baseURL = 'http://103.165.127.197:30107/portal-supplier-maj/public/';

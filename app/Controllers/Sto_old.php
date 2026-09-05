@@ -477,29 +477,15 @@ class Sto extends BaseController
         $data['type'] = $this->request->getGet('type');
         $id_tags = $this->request->getGet('id_tags');
 
-        // Dibalas sebagai teks biasa, BUKAN exception. Di ENVIRONMENT
-        // production, exception hanya memunculkan halaman "Whoops" gelap --
-        // dan kalau Content-Type sudah terlanjur application/pdf, browser
-        // menampilkannya sebagai layar kosong tanpa keterangan apa pun.
         if (empty($id_tags)) {
-            return $this->response
-                ->setStatusCode(400)
-                ->setContentType('text/plain; charset=UTF-8')
-                ->setBody('Parameter "id_tags" kosong, tidak ada tag yang bisa dicetak.');
+            throw new \Exception("ID Tag tidak ditemukan.");
         }
-
-        $id_tags_array = array_values(array_filter(array_map('trim', explode(',', $id_tags)), 'strlen'));
-
-        if ($id_tags_array === []) {
-            return $this->response
-                ->setStatusCode(400)
-                ->setContentType('text/plain; charset=UTF-8')
-                ->setBody('Parameter "id_tags" tidak memuat satu pun id tag yang sah.');
-        }
+    
+        $id_tags_array = explode(',', $id_tags);
 
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $pdf->SetCreator(PDF_CREATOR);
-        $pdf->SetAuthor('fahmi');
+        $pdf->SetAuthor('guest');
         $pdf->SetTitle($data['part_number'] . ' | ' . $data['type']. ' | ' .$data['customer']);
         $pdf->SetSubject('invoice vendor');
         $pdf->SetKeywords('TCPDF, PDF, invoice, mekararmadajaya');
@@ -529,28 +515,8 @@ class Sto extends BaseController
             $pdf->writeHTML($html, true, false, true, false, '');
         }
 
-        // Nama berkas dibersihkan: karakter seperti "|" tidak sah di dalam
-        // parameter filename pada Content-Disposition, dan sebagian browser
-        // memilih mengunduh alih-alih menampilkan pratinjau bila header-nya
-        // tidak bisa diurai.
-        $nama = preg_replace(
-            '/[^A-Za-z0-9 ._-]+/',
-            '-',
-            $data['part_number'] . ' - ' . $data['type'] . ' - ' . $data['customer']
-        );
-        $nama = trim(preg_replace('/-{2,}/', '-', $nama), '- ') . '.pdf';
-
-        // Dikirim sebagai badan Response, sama seperti pdf_tag_sto_batch().
-        // Buffer CI4 dibuang lebih dulu supaya keluaran nyasar (spasi/BOM
-        // dari file lain, peringatan PHP) tidak ikut terbawa dan merusak PDF.
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
-
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="' . $nama . '"')
-            ->setBody($pdf->Output($nama, 'S'));
+        $this->response->setContentType('application/pdf');
+        $pdf->Output($data['part_number'] . ' | ' . $data['type']. ' | ' .$data['customer'].'.pdf', 'I');
     }
 
     public function InsertData()

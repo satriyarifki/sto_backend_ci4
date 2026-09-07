@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Api\Sto;
 
+use App\Models\Sto\EventModel;
 use App\Models\Sto\TagOkModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -9,7 +10,9 @@ use CodeIgniter\HTTP\ResponseInterface;
  * Tag OK sebagai satuan hitung STO -- majsf_sto.tag_ok_data.
  *
  *   GET  /api/sto/tag-ok          detail satu tag OK
- *   POST /api/sto/tag-ok-open     SIAPKAN: tandai siap dihitung
+ *   GET  /api/sto/tag-ok-prepare  intip data tag dari view produksi
+ *   POST /api/sto/tag-ok-prepare  SIAPKAN: salin view -> tag_ok_data
+ *   POST /api/sto/tag-ok-open     buka kembali tag yang sudah ada
  *   POST /api/sto/tag-ok-scan     HITUNG: catat qty fisik lalu tutup
  *   GET  /api/sto/tag-ok-list     daftar + ringkasan
  *   POST /api/sto/tag-ok-cancel   ajukan/putuskan pembatalan
@@ -106,10 +109,169 @@ class TagOkData extends BaseSto
     }
 
     /**
+     * POST /api/sto/tag-ok-prepare
+     * Body: {"nik":"M.9276","id_tag_ok":"MAJ2708260202754","area":"IFPP"}
+     *       opsional {"id_event":4,"scan_at":"2026-09-05 08:10:00"}
+     *
+     * SIAPKAN: menyalin satu tag OK dari majsf_inventory.v_print_tag_ok_all
+     * ke majsf_sto.tag_ok_data. Ini pasangan POST dari detailPrepare() --
+     * yang GET hanya mengintip, yang ini yang benar-benar mendaftarkan.
+     *
+     * Baris lahir dalam keadaan siap dihitung (scan_open = 1), jadi setelah
+     * ini aplikasi bisa langsung lanjut ke tag-ok-scan. open() tetap ada
+     * untuk membuka kembali baris lama yang sudah terlanjur tertutup.
+     *
+     * `area`, `scan_at`, dan `scan_by` tidak ada di view -- itu bagian yang
+     * ditentukan petugas di lapangan. Sisanya disalin dari view.
+     */
+    public function prepare(): ResponseInterface
+    {
+        $this->tagok = new TagOkModel();
+
+        [$user, $tolak] = $this->pastikanUserTerdaftar($this->in('nik'));
+        if ($tolak !== null) {
+            return $tolak;
+        }
+
+        $errors = [];
+
+        $idTagOk = $this->cleanString($this->in('id_tag_ok'));
+
+        if ($idTagOk === '') {
+            $errors[] = 'id_tag_ok wajib diisi';
+        }
+
+        // Kolom area NOT NULL dan tidak tersedia di view -- petugas yang
+        // menentukan di lokasi mana tag ini ditemukan.
+        $area = $this->cleanString($this->in('area'));
+
+        if ($area === '') {
+            $errors[] = 'area wajib diisi';
+        } elseif (strlen($area) > TagOkModel::MAX_AREA) {
+            $errors[] = 'area melebihi ' . TagOkModel::MAX_AREA . ' karakter';
+        }
+
+        // Waktu scan boleh dikirim aplikasi (mis. hasil scan luring yang baru
+        // terkirim belakangan). Kalau tidak, dibiarkan kosong dan diisi
+        // siapkan() dengan waktu server.
+        $scanAt = '';
+
+        if ($this->cleanString($this->in('scan_at')) !== '') {
+            $scanAt = $this->parseDatetime($this->in('scan_at'), false);
+
+            if ($scanAt === false) {
+                $errors[] = 'scan_at harus "YYYY-MM-DD" atau "YYYY-MM-DD HH:MM:SS"';
+            }
+        }
+
+        $idEvent = $this->parseId($this->in('id_event'));
+
+        if ($idEvent === false) {
+            $errors[] = 'id_event harus berupa angka';
+            $idEvent  = null;
+        }
+
+        if ($errors !== []) {
+            return $this->gagalValidasi($errors);
+        }
+
+        [$event, $tolak] = $this->tentukanEvent($idEvent);
+        if ($tolak !== null) {
+            return $tolak;
+        }
+
+        $idEvent = (int) $event['id_event'];
+
+        // ---------------------------------------------------- baca view
+        $sumber = $this->tagok->getPrepareById($idTagOk);
+
+        if ($sumber === false) {
+            return $this->gagal('Gagal membaca data tag OK dari majsf_inventory', 500);
+        }
+
+        if ($sumber === null) {
+            return $this->respond([
+                'status'    => 'failed',
+                'message'   => 'Tag OK "' . $idTagOk . '" tidak ditemukan di data produksi',
+                'id_tag_ok' => $idTagOk,
+            ], 404);
+        }
+
+        // ------------------------------------------- sudah disiapkan?
+        $ada = $this->tagok->getById($idTagOk, $idEvent);
+
+        if ($ada === false) {
+            return $this->gagal('Gagal membaca data tag OK', 500);
+        }
+
+        if ($ada !== null) {
+            return $this->respond([
+                'status'  => 'failed',
+                'message' => 'Tag OK ini sudah disiapkan oleh ' . (string) $ada['scan_by']
+                             . ' pada ' . (string) $ada['scan_at'],
+                'data'    => $this->formatTagOk($ada),
+            ], 409);
+        }
+
+        // ---------------------------------------------------- simpan
+        $baris = [
+            'id_tag_ok'   => (string) $sumber['id_tag_ok'],
+            'area'        => $area,
+            'scan_at'     => $scanAt,
+            'scan_by'     => (string) $user['nik'],
+            'id_event'    => $idEvent,
+            'scan_open'   => 1,
+            'opened_by'   => (string) $user['nik'],
+            'opened_at'   => $scanAt,
+            'is_canceled' => 0,
+            // created_at, dan scan_at/opened_at bila masih kosong, diisi
+            // siapkan() dalam GMT+7.
+        ];
+
+        foreach (TagOkModel::KOLOM_SALIN as $kolom) {
+            $baris[$kolom] = $sumber[$kolom] ?? null;
+        }
+
+        $idBaru = $this->tagok->siapkan($baris);
+
+        if ($idBaru === false) {
+            // Perangkat lain menyiapkan tag yang sama di antara pemeriksaan
+            // di atas dan INSERT ini. Unique key uq_tag_event yang menangkap.
+            if ((int) ($this->tagok->lastError['code'] ?? 0) === TagOkModel::ERR_DUPLICATE) {
+                $bentrok = $this->tagok->getById($idTagOk, $idEvent);
+
+                return $this->respond([
+                    'status'  => 'failed',
+                    'message' => 'Tag OK ini baru saja disiapkan perangkat lain',
+                    'data'    => is_array($bentrok) ? $this->formatTagOk($bentrok) : null,
+                ], 409);
+            }
+
+            return $this->gagal('Gagal menyiapkan tag OK', 500);
+        }
+
+        log_message(
+            'info',
+            'Siapkan tag OK: ' . $idTagOk . ' area=' . $area
+            . ' id_event=' . $idEvent . ' oleh ' . (string) $user['nik']
+        );
+
+        $baru = $this->tagok->getById($idTagOk, $idEvent);
+
+        return $this->ok([
+            'status'  => 'success',
+            'message' => 'Tag OK berhasil disiapkan dan siap dihitung',
+            'data'    => is_array($baru) ? $this->formatTagOk($baru) : null,
+        ], 201);
+    }
+
+    /**
      * POST /api/sto/tag-ok-open
      * Body: {"nik":"M.9276","id_tag_ok":"MAJ2708260202754"}
      *
-     * SIAPKAN: menandai tag OK siap dihitung (scan_open = 1).
+     * Membuka kembali tag OK yang barisnya SUDAH ada di tag_ok_data
+     * (scan_open = 1). Untuk tag yang belum pernah didaftarkan, pakai
+     * tag-ok-prepare -- yang itu sekaligus membuat barisnya.
      */
     public function open(): ResponseInterface
     {
@@ -470,6 +632,66 @@ class TagOkData extends BaseSto
             'message' => $pesan,
             'data'    => is_array($baru) ? $this->formatTagOk($baru) : null,
         ]);
+    }
+
+    /**
+     * Tentukan event STO yang dipakai saat menyiapkan tag.
+     *
+     * id_event ikut menyusun unique key uq_tag_event, jadi nilainya harus
+     * pasti sebelum menulis -- satu tag OK yang sama boleh disiapkan lagi
+     * pada event berikutnya, tapi tidak dua kali pada event yang sama.
+     *
+     * Kalau tidak disebutkan, dipakai satu-satunya event yang berjalan.
+     * Bila yang berjalan lebih dari satu, aplikasi harus memilih sendiri --
+     * menebak di sini berisiko mencatat hasil hitung ke event yang salah.
+     *
+     * Sejalan dengan Tags::tentukanEvent(), tapi lewat EventModel supaya
+     * kelas ini tidak perlu memuat ScanModel yang menyentuh sto_data.
+     *
+     * @return array{0: array|null, 1: ResponseInterface|null} [event, response gagal]
+     */
+    private function tentukanEvent(?int $idEvent): array
+    {
+        $events = new EventModel();
+
+        if ($idEvent !== null) {
+            $event = $events->getEvent($idEvent);
+
+            if ($event === false) {
+                return [null, $this->gagal('Gagal membaca data event', 500)];
+            }
+
+            if ($event === null) {
+                return [null, $this->gagal('id_event ' . $idEvent . ' tidak ditemukan', 404)];
+            }
+
+            return [$event, null];
+        }
+
+        $aktif = $events->getOtherActive();
+
+        if ($aktif === false) {
+            return [null, $this->gagal('Gagal membaca data event', 500)];
+        }
+
+        if ($aktif === []) {
+            return [null, $this->gagal(
+                'Tidak ada event STO yang berjalan (status = 1). '
+                . 'Aktifkan event dulu atau sebutkan id_event pada request.',
+                409
+            )];
+        }
+
+        if (count($aktif) > 1) {
+            return [null, $this->respond([
+                'status'  => 'failed',
+                'message' => 'Ada ' . count($aktif) . ' event berjalan sekaligus, '
+                             . 'sebutkan id_event pada request untuk memilih',
+                'events'  => $aktif,
+            ], 409)];
+        }
+
+        return [$aktif[0], null];
     }
 
     /**

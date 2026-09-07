@@ -40,6 +40,41 @@ class TagOkModel extends Model
     /** Batas qty hasil hitung; kolomnya INT. */
     public const MAX_QTY = 2147483647;
 
+    /** Panjang maksimal kolom tag_ok_data.area. */
+    public const MAX_AREA = 50;
+
+    /**
+     * Kode error MySQL untuk pelanggaran UNIQUE key.
+     * Dipakai siapkan() untuk membedakan tabrakan uq_tag_event (tag sudah
+     * disiapkan) dari kegagalan tulis yang sebenarnya.
+     */
+    public const ERR_DUPLICATE = 1062;
+
+    /**
+     * Kolom yang disalin apa adanya dari majsf_inventory.v_print_tag_ok_all
+     * ke majsf_sto.tag_ok_data saat penyiapan.
+     *
+     * Disalin, bukan dibaca lewat JOIN lintas-database, supaya hasil STO tetap
+     * mencerminkan keadaan tag pada saat dihitung -- data produksi di
+     * majsf_inventory bisa berubah setelahnya.
+     *
+     * `create_date` sengaja TIDAK ikut: kolom created_at pada tag_ok_data
+     * berarti "kapan disiapkan", bukan kapan tag dicetak produksi.
+     */
+    public const KOLOM_SALIN = [
+        'process',
+        'date',
+        'shift',
+        'line',
+        'part_number',
+        'job_number',
+        'qty_kbn',
+        'status',
+        'project',
+        'customer',
+        'user_create',
+    ];
+
     public array $lastError = [];
 
     /**
@@ -95,6 +130,62 @@ class TagOkModel extends Model
         }
 
         return $query->getRowArray();
+    }
+
+    /**
+     * Menyalin satu tag OK dari view produksi ke tag_ok_data -- langkah
+     * SIAPKAN yang sesungguhnya, yaitu saat barisnya lahir.
+     *
+     * buka() di bawah hanya meng-UPDATE baris yang sudah ada, jadi tanpa
+     * method ini tag yang belum pernah disiapkan tidak punya baris untuk
+     * dibuka sama sekali.
+     *
+     * Tabrakan uq_tag_event (id_tag_ok + id_event) TIDAK dianggap kegagalan
+     * tulis: itu berarti tag sudah disiapkan lebih dulu, dan pemanggil perlu
+     * membedakannya lewat lastError['code'] === self::ERR_DUPLICATE.
+     *
+     * `created_at` sengaja TIDAK ditulis di sini: kolomnya ber-DEFAULT
+     * CURRENT_TIMESTAMP dan jam server MySQL sudah GMT+7, jadi biar MySQL
+     * sendiri yang mengisinya. `scan_at` dan `opened_at` hanya diisi bila
+     * kosong -- keduanya boleh datang dari lapangan (mis. hasil scan luring
+     * yang baru terkirim belakangan).
+     *
+     * @param array<string, mixed> $data baris siap simpan
+     *
+     * @return int|false id baris baru
+     */
+    public function siapkan(array $data)
+    {
+        $this->lastError = [];
+
+        unset($data['created_at']);
+
+        foreach (['scan_at', 'opened_at'] as $kolom) {
+            if (! isset($data[$kolom]) || trim((string) $data[$kolom]) === '') {
+                $data[$kolom] = date('Y-m-d H:i:s');
+            }
+        }
+
+        try {
+            $ok = $this->db->table('tag_ok_data')->insert($data);
+
+            if ($ok === false) {
+                $this->lastError = $this->db->error();
+
+                return false;
+            }
+        } catch (DatabaseException $e) {
+            // Driver melempar sebelum sempat mengisi db->error() pada sebagian
+            // kasus, jadi kode diambil dari exception-nya.
+            $err             = $this->db->error();
+            $this->lastError = ($err['code'] ?? 0) !== 0
+                ? $err
+                : ['code' => (int) $e->getCode(), 'message' => $e->getMessage()];
+
+            return false;
+        }
+
+        return (int) $this->db->insertID();
     }
 
     /**

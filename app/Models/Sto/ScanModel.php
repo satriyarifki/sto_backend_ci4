@@ -404,7 +404,7 @@ class ScanModel extends Model
                 'id_item'    => $idItem,
                 'area'       => $area,
                 'created_by' => $createdBy,
-                'created_at' => date('Y-m-d H:i:s'),
+                // created_at diisi MySQL (DEFAULT CURRENT_TIMESTAMP)
             ]);
 
             $newId = (int) $this->db->insertID();
@@ -746,7 +746,6 @@ class ScanModel extends Model
      */
     public function createTagsBulk(int $idEvent, int $idItem, string $area, ?int $createdBy, int $qty): array
     {
-        $now    = date('Y-m-d H:i:s');
         $prefix = 'STO' . date('ymd') . '-' . $idEvent;
         $dibuat = [];
         $gagal  = [];
@@ -765,7 +764,7 @@ class ScanModel extends Model
                     'id_item'    => $idItem,
                     'area'       => $area,
                     'created_by' => $createdBy,
-                    'created_at' => $now,
+                    // created_at diisi MySQL (DEFAULT CURRENT_TIMESTAMP)
                 ]);
 
                 $newId = (int) $this->db->insertID();

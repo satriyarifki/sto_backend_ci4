@@ -168,7 +168,7 @@ class Events extends BaseSto
             'start_date' => $start,
             'end_date'   => $end,
             'status'     => $status,
-            'created_at' => date('Y-m-d H:i:s'),
+            // created_at diisi MySQL (DEFAULT CURRENT_TIMESTAMP)
         ]);
 
         if ($idEvent === false) {

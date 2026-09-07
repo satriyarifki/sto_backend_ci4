@@ -76,6 +76,7 @@ $routes->group('api/sto', ['namespace' => 'App\Controllers\Api\Sto'], static fun
 
     // Tag OK
     $routes->get('tag-ok-prepare',  'TagOkData::detailPrepare');
+    $routes->post('tag-ok-prepare', 'TagOkData::prepare');
     $routes->get('tag-ok',          'TagOkData::detail');
     $routes->get('tag-ok-list',     'TagOkData::list');
     $routes->post('tag-ok-open',    'TagOkData::open');

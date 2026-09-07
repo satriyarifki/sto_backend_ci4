@@ -114,13 +114,12 @@ class UserModel extends Model
 
             if ($areas !== []) {
                 $batch = [];
-                $now   = date('Y-m-d H:i:s');
 
                 foreach ($areas as $area) {
                     $batch[] = [
-                        'id_user'    => $idUser,
-                        'area'       => $area,
-                        'created_at' => $now,
+                        'id_user' => $idUser,
+                        'area'    => $area,
+                        // created_at diisi MySQL (DEFAULT CURRENT_TIMESTAMP)
                     ];
                 }
 
@@ -256,13 +255,12 @@ class UserModel extends Model
 
                 if ($areas !== []) {
                     $batch = [];
-                    $now   = date('Y-m-d H:i:s');
 
                     foreach ($areas as $area) {
                         $batch[] = [
-                            'id_user'    => $idUser,
-                            'area'       => $area,
-                            'created_at' => $now,
+                            'id_user' => $idUser,
+                            'area'    => $area,
+                            // created_at diisi MySQL (DEFAULT CURRENT_TIMESTAMP)
                         ];
                     }
 

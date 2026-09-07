@@ -180,7 +180,7 @@ class Devices extends BaseSto
         $id = $this->devices->createDevice([
             'name'       => $nama,
             'android_id' => $androidId,
-            'created_at' => date('Y-m-d H:i:s'),
+            // created_at diisi MySQL (DEFAULT CURRENT_TIMESTAMP)
         ]);
 
         if ($id === false) {

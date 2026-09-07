@@ -138,8 +138,12 @@ class App extends BaseConfig
      *
      * @see https://www.php.net/manual/en/timezones.php for list of timezones
      *      supported by PHP.
+     *
+     * Asia/Jakarta (GMT+7), menyamai jam server MySQL. Selama nilainya masih
+     * 'UTC' bawaan CI4, setiap date() menghasilkan stempel tujuh jam lebih
+     * lambat dari kolom ber-DEFAULT CURRENT_TIMESTAMP pada baris yang sama.
      */
-    public string $appTimezone = 'UTC';
+    public string $appTimezone = 'Asia/Jakarta';
 
     /**
      * --------------------------------------------------------------------------

@@ -126,7 +126,7 @@ class Auth extends BaseSto
             'device_id'  => $deviceId,
             'permissions' => ($permissions === null || $permissions === '') ? null : $permissions,
             'created_by' => (int) $pendaftar['id'],
-            'created_at' => date('Y-m-d H:i:s'),
+            // created_at diisi MySQL (DEFAULT CURRENT_TIMESTAMP)
         ];
 
         $idUser = $this->users->createUser($data, $areas);

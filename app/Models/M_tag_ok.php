@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\TagOkLookup;
 use CodeIgniter\Model;
 use Config\Database;
 
@@ -9,8 +10,6 @@ class M_tag_ok extends Model
 {
     protected $dbKanban;
 
-    // Sumber data hasil scan (view di majsf_inventory)
-    protected $view_tag_ok = 'v_print_tag_ok_all';
     // Tabel penampung hasil scan STO
     protected $table_sto_tag_ok = 'table_sto_tag_ok';
 
@@ -22,29 +21,16 @@ class M_tag_ok extends Model
     }
 
     /**
-     * Ambil detail TAG OK dari view berdasarkan id_tag_ok hasil scan.
+     * Ambil detail TAG OK berdasarkan id_tag_ok hasil scan.
+     *
+     * Dulu menembak view v_print_tag_ok_all langsung. View itu ber-UNION dan
+     * MySQL 5.7 menerapkan filter id_tag_ok baru setelah seluruh isinya
+     * dimaterialisasi (~507rb baris, 9,1 detik per tag). TagOkLookup menjalankan
+     * query yang sama dengan filternya didorong ke tiap cabang UNION.
      */
     public function getTagOk($id_tag_ok)
     {
-        $builder = $this->dbKanban->table($this->view_tag_ok);
-        $builder->select('
-            process,
-            id_tag_ok,
-            date,
-            shift,
-            line,
-            part_number,
-            job_number,
-            qty_kbn,
-            status,
-            project,
-            customer,
-            create_date,
-            user_create
-        ');
-        $builder->where('id_tag_ok', $id_tag_ok);
-
-        return $builder->get()->getRowArray();
+        return TagOkLookup::byId($this->dbKanban, $id_tag_ok);
     }
 
     /**

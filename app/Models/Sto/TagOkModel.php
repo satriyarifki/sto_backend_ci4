@@ -2,6 +2,7 @@
 
 namespace App\Models\Sto;
 
+use App\Libraries\TagOkLookup;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Model;
 
@@ -28,7 +29,6 @@ class TagOkModel extends Model
 {
     protected $DBGroup    = 'db_sto';
     protected $table      = 'tag_ok_data';
-    protected $viewtable  = 'majsf_inventory.v_print_tag_ok_all';
     protected $primaryKey = 'id';
     protected $returnType = 'array';
 
@@ -108,28 +108,27 @@ class TagOkModel extends Model
 
         return $query->getRowArray();
     }
+    /**
+     * Detail satu tag OK dari data produksi.
+     *
+     * Tidak lagi menembak view v_print_tag_ok_all: view itu ber-UNION dan
+     * MySQL 5.7 menerapkan filter id_tag_ok baru setelah seluruh isi view
+     * dimaterialisasi (~507rb baris, 9,1 detik per tag). TagOkLookup menulis
+     * query yang sama dengan filternya didorong ke tiap cabang UNION.
+     *
+     * @return array<string, mixed>|null|false
+     */
     public function getPrepareById(string $idTagOk, ?int $idEvent = null)
     {
         $this->lastError = [];
 
-        $builder = $this->db->table('majsf_inventory.v_print_tag_ok_all')->where('id_tag_ok', $idTagOk);
-
-
         try {
-            $query = $builder->orderBy('id_tag_ok', 'DESC')->limit(1)->get();
-
-            if ($query === false) {
-                $this->lastError = $this->db->error();
-
-                return false;
-            }
+            return TagOkLookup::byId($this->db, $idTagOk);
         } catch (DatabaseException $e) {
             $this->lastError = ['code' => (int) $e->getCode(), 'message' => $e->getMessage()];
 
             return false;
         }
-
-        return $query->getRowArray();
     }
 
     /**
